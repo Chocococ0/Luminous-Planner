@@ -142,6 +142,28 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
 .cbody{overflow:hidden;max-height:0;transition:max-height .35s ease}
 .cbody.open{max-height:3000px}
 
+/* ── COUNTDOWN BANNER ── */
+.countdown-banner{
+  display:flex;align-items:center;gap:14px;margin-top:14px;
+  background:rgba(66,165,245,.06);border:1px solid rgba(66,165,245,.25);border-radius:13px;
+  padding:12px 18px;transition:all .4s
+}
+.countdown-banner.urgent-14{background:rgba(255,213,79,.06);border-color:rgba(255,213,79,.3)}
+.countdown-banner.urgent-7{background:rgba(255,167,38,.08);border-color:rgba(255,167,38,.35);animation:pulseBan 3s infinite}
+.countdown-banner.urgent-3{background:rgba(255,82,82,.1);border-color:rgba(255,82,82,.4);animation:pulseBan 2s infinite}
+@keyframes pulseBan{0%,100%{box-shadow:0 0 0 0 rgba(255,82,82,.18)}55%{box-shadow:0 0 0 6px rgba(255,82,82,0)}}
+.cd-icon-wrap{width:44px;height:44px;border-radius:12px;background:rgba(8,28,64,.6);display:flex;align-items:center;justify-content:center;font-size:1.45rem;flex-shrink:0}
+.urgent-3 .cd-icon-wrap{background:rgba(255,82,82,.12)}.urgent-7 .cd-icon-wrap{background:rgba(255,167,38,.12)}.urgent-14 .cd-icon-wrap{background:rgba(255,213,79,.1)}
+.cd-info{flex:1;min-width:0}
+.cd-line1{font-size:.92rem;color:#e3f2fd;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cd-line2{font-size:.7rem;color:#90caf9;font-family:'JetBrains Mono',monospace}
+.cd-countdown{text-align:right;flex-shrink:0}
+.cd-days{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:300;line-height:1;color:#42a5f5}
+.urgent-14 .cd-days{color:var(--gold);text-shadow:0 0 10px rgba(255,213,79,.3)}
+.urgent-7 .cd-days{color:#ffa726;text-shadow:0 0 12px rgba(255,167,38,.4)}
+.urgent-3 .cd-days{color:#ff5252;text-shadow:0 0 14px rgba(255,82,82,.45)}
+.cd-label{font-size:.55rem;color:#64b5f6;letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
+
 /* ── EXAM ALERT ── */
 #examAlertBanner{display:none;background:rgba(255,82,82,.08);border:1px solid rgba(255,82,82,.3);border-radius:12px;padding:12px 15px;margin-top:14px;animation:palert 2.5s infinite}
 @keyframes palert{0%,100%{box-shadow:0 0 0 0 rgba(255,82,82,.1)}60%{box-shadow:0 0 0 4px rgba(255,82,82,0)}}
@@ -367,6 +389,19 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
       <button class="btn btn-ghost btn-sm" onclick="dismissAlert()" style="flex-shrink:0;align-self:flex-start">知道了</button>
     </div>
   </div>
+  <!-- Countdown Banner -->
+  <div id="countdownBanner" class="countdown-banner" style="display:none">
+    <div class="cd-icon-wrap"><span id="cdIcon">📝</span></div>
+    <div class="cd-info">
+      <div class="cd-line1"><span id="cdName">考试</span> · <span style="color:#64b5f6;font-size:.72rem" id="cdDate"></span></div>
+      <div class="cd-line2"><span id="cdProgress">0/0章</span><span id="cdOthers" style="margin-left:10px;color:#546e7a"></span></div>
+    </div>
+    <div class="cd-countdown">
+      <div class="cd-days"><span id="cdDays">0</span><span style="font-size:.65rem;color:#64b5f6;margin-left:2px">天</span></div>
+      <div class="cd-label">距考试</div>
+    </div>
+  </div>
+
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="switchTab('day')" id="tab-day">◎ 今日</button>
     <button class="nav-tab" onclick="switchTab('week')" id="tab-week">◈ 本周</button>
@@ -381,11 +416,27 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
       <div class="card-title"><span class="dot"></span>添加今日任务</div>
       <div class="frow">
         <div class="fw fw-2"><label class="ilbl">任务名称</label><input id="dName" placeholder="例：物理实验报告" onkeydown="if(event.key==='Enter')addDTask()"></div>
-        <div class="fw fw-sm"><label class="ilbl">时长（分钟）</label><input type="number" id="dDur" placeholder="60" min="5" max="480"></div>
+        <div class="fw fw-xs"><label class="ilbl">时长（分钟）</label><input type="number" id="dDur" placeholder="60" min="5" max="480"></div>
+        <div class="fw fw-xs"><label class="ilbl">固定时间 <span style="opacity:.6">(选填)</span></label><input type="time" id="dFixed" placeholder="08:00"></div>
         <div class="fw-btn"><button class="btn btn-primary" onclick="addDTask()" style="width:100%;justify-content:center">＋ 添加</button></div>
       </div>
       <div id="schedPrev" style="display:none"></div>
       <div style="margin-top:10px">
+        <div class="coll-hdr" onclick="togColl('sched')"><span class="carr" id="carr-sched">▶</span><span>作息时间设置</span><span style="font-size:.62rem;color:#546e7a;margin-left:auto;font-family:'JetBrains Mono',monospace" id="schedSummary"></span></div>
+        <div class="cbody" id="cbody-sched">
+          <div style="padding:12px 0">
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:12px">
+              <div class="fw"><label class="ilbl">起床时间</label><input type="time" id="cfgWake" onchange="updateSchedule()"></div>
+              <div class="fw"><label class="ilbl">睡觉时间</label><input type="time" id="cfgSleep" onchange="updateSchedule()"></div>
+            </div>
+            <div style="font-size:.66rem;color:#64b5f6;letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px">🍽 用餐时段</div>
+            <div id="mealList" style="display:flex;flex-direction:column;gap:6px"></div>
+            <button class="btn btn-ghost btn-sm" onclick="addMeal()" style="margin-top:8px">＋ 添加用餐时段</button>
+            <div style="font-size:.66rem;color:#64b5f6;margin-top:10px;line-height:1.6">💡 排程会自动避开这些时段；睡觉后/起床前的任务会留到第二天</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px">
         <div class="coll-hdr" onclick="togColl('pts')"><span class="carr" id="carr-pts">▶</span><span>积分规则说明</span></div>
         <div class="cbody" id="cbody-pts">
           <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px;padding:8px 0">
@@ -393,8 +444,19 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
             <div style="display:flex;justify-content:space-between;padding:5px 9px;background:rgba(3,10,28,.55);border-radius:7px;border:1px solid rgba(100,181,246,.14);font-size:.76rem"><span style="color:#90caf9">⏱ 按时完成</span><span style="font-family:'JetBrains Mono',monospace;color:var(--gold)">+5</span></div>
             <div style="display:flex;justify-content:space-between;padding:5px 9px;background:rgba(3,10,28,.55);border-radius:7px;border:1px solid rgba(100,181,246,.14);font-size:.76rem"><span style="color:#90caf9">🔥 连续3项</span><span style="font-family:'JetBrains Mono',monospace;color:var(--gold)">+15</span></div>
             <div style="display:flex;justify-content:space-between;padding:5px 9px;background:rgba(3,10,28,.55);border-radius:7px;border:1px solid rgba(100,181,246,.14);font-size:.76rem"><span style="color:#90caf9">📅 提前完成</span><span style="font-family:'JetBrains Mono',monospace;color:var(--gold)">+8</span></div>
-            <div style="display:flex;justify-content:space-between;padding:5px 9px;background:rgba(3,10,28,.55);border-radius:7px;border:1px solid rgba(100,181,246,.14);font-size:.76rem"><span style="color:#90caf9">🎯 全部完成</span><span style="font-family:'JetBrains Mono',monospace;color:var(--gold)">+20</span></div>
-            <div style="display:flex;justify-content:space-between;padding:5px 9px;background:rgba(3,10,28,.55);border-radius:7px;border:1px solid rgba(100,181,246,.14);font-size:.76rem"><span style="color:#90caf9">⭐ 章节掌握</span><span style="font-family:'JetBrains Mono',monospace;color:var(--gold)">+5</span></div>
+            <div style="display:flex;justify-content:space-between;padding:5px 9px;background:rgba(3,10,28,.55);border-radius:7px;border:1px solid rgba(100,181,246,.14);font-size:.76rem"><span style="color:#90caf9">🎯 今日全部完成</span><span style="font-family:'JetBrains Mono',monospace;color:var(--gold)">+20</span></div>
+            <div style="display:flex;justify-content:space-between;padding:5px 9px;background:rgba(3,10,28,.55);border-radius:7px;border:1px solid rgba(100,181,246,.14);font-size:.76rem"><span style="color:#90caf9">🎓 完成科目</span><span style="font-family:'JetBrains Mono',monospace;color:var(--gold)">+20</span></div>
+          </div>
+          <div style="margin-top:10px;padding-top:8px;border-top:1px dashed rgba(100,181,246,.15)">
+            <div style="font-size:.66rem;color:#64b5f6;letter-spacing:.1em;margin-bottom:6px">⭐ 章节掌握度积分（按等级浮动）</div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">
+              <div style="text-align:center;padding:6px 4px;background:rgba(3,10,28,.55);border-radius:6px;border:1px solid rgba(100,181,246,.14)"><div style="font-size:.62rem;color:#90caf9">⭐了解</div><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold);margin-top:2px">+1</div></div>
+              <div style="text-align:center;padding:6px 4px;background:rgba(3,10,28,.55);border-radius:6px;border:1px solid rgba(100,181,246,.14)"><div style="font-size:.62rem;color:#90caf9">⭐⭐熟悉</div><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold);margin-top:2px">+3</div></div>
+              <div style="text-align:center;padding:6px 4px;background:rgba(3,10,28,.55);border-radius:6px;border:1px solid rgba(100,181,246,.14)"><div style="font-size:.62rem;color:#90caf9">⭐⭐⭐掌握</div><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold);margin-top:2px">+5</div></div>
+              <div style="text-align:center;padding:6px 4px;background:rgba(3,10,28,.55);border-radius:6px;border:1px solid rgba(100,181,246,.14)"><div style="font-size:.62rem;color:#90caf9">⭐⭐⭐⭐精通</div><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold);margin-top:2px">+8</div></div>
+              <div style="text-align:center;padding:6px 4px;background:rgba(3,10,28,.55);border-radius:6px;border:1px solid rgba(100,181,246,.14)"><div style="font-size:.62rem;color:#90caf9">⭐⭐⭐⭐⭐大师</div><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold);margin-top:2px">+12</div></div>
+            </div>
+            <div style="font-size:.62rem;color:#546e7a;margin-top:6px">* 升级累加差值，降级会扣回</div>
           </div>
         </div>
       </div>
@@ -505,17 +567,9 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
       <div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:.64rem;color:#64b5f6">等级：<span id="shLv" style="color:var(--gold)">星尘旅者</span></span><span style="font-size:.64rem;color:#64b5f6">距下级：<span id="shNx" style="color:var(--gold)">100 pts</span></span></div>
     </div>
     <div class="card"><div class="card-title"><span class="dot"></span>积分记录</div><div id="ptsHist" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto"><div class="empty" style="padding:14px"><div class="ei">📊</div>完成任务后积分记录将在这里显示</div></div></div>
-    <div class="sh">✦ 兑换商店</div>
-    <div class="shgrid">
-      <div class="shi" onclick="redeem('☕ 奶茶',50)"><div class="shi-icon">☕</div><div class="shi-name">奶茶一杯</div><div class="shi-cost">50 pts</div></div>
-      <div class="shi" onclick="redeem('🎮 游戏30min',80)"><div class="shi-icon">🎮</div><div class="shi-name">游戏30分钟</div><div class="shi-cost">80 pts</div></div>
-      <div class="shi" onclick="redeem('📺 追剧一集',60)"><div class="shi-icon">📺</div><div class="shi-name">追剧一集</div><div class="shi-cost">60 pts</div></div>
-      <div class="shi" onclick="redeem('🛁 泡澡',40)"><div class="shi-icon">🛁</div><div class="shi-name">泡澡放松</div><div class="shi-cost">40 pts</div></div>
-      <div class="shi" onclick="redeem('📚 新书',150)"><div class="shi-icon">📚</div><div class="shi-name">购买新书</div><div class="shi-cost">150 pts</div></div>
-      <div class="shi" onclick="redeem('🌴 散步',30)"><div class="shi-icon">🌴</div><div class="shi-name">户外散步</div><div class="shi-cost">30 pts</div></div>
-      <div class="shi" onclick="redeem('🎵 音乐',35)"><div class="shi-icon">🎵</div><div class="shi-name">音乐时光</div><div class="shi-cost">35 pts</div></div>
-      <div class="shi" onclick="redeem('🍕 美食',100)"><div class="shi-icon">🍕</div><div class="shi-name">美食犒劳</div><div class="shi-cost">100 pts</div></div>
-    </div>
+    <div class="sh">✦ 兑换商店 <button class="btn btn-accent btn-sm" onclick="openShopEdit(null)" style="margin-left:auto">＋ 添加</button><button class="btn btn-ghost btn-sm" onclick="resetShop()">↺ 默认</button></div>
+    <div style="font-size:.68rem;color:#64b5f6;margin-bottom:8px">💡 长按或点击 ✎ 编辑商品；可自由添加、修改、删除奖励项</div>
+    <div class="shgrid" id="shopGrid"></div>
   </div>
 </div>
 
@@ -530,13 +584,38 @@ function doLogin(){const u=document.getElementById('lU').value.trim(),p=document
 function doReg(){const u=document.getElementById('rU').value.trim(),p=document.getElementById('rP').value,p2=document.getElementById('rP2').value,e=document.getElementById('rErr');e.textContent='';if(!u||!p){e.textContent='请填写完整';return}if(u.length<3||u.length>16){e.textContent='用户名需3-16字符';return}if(p.length<6){e.textContent='密码至少6位';return}if(p!==p2){e.textContent='两次密码不一致';return}const us=gU();if(us[u]){e.textContent='用户名已被使用';return}us[u]=hsh(p);sU(us);loginOK(u)}
 function loginOK(u){CU=u;localStorage.setItem('lp_s',u);document.getElementById('loginScreen').style.display='none';document.getElementById('mainApp').style.display='block';document.getElementById('uName').textContent=u;document.getElementById('uAv').textContent=u[0].toUpperCase();loadData();initApp()}
 function doLogout(){if(!confirm('确认退出？'))return;saveAll();CU=null;localStorage.removeItem('lp_s');location.reload()}
-(function(){const s=localStorage.getItem('lp_s');if(s&&gU()[s])loginOK(s)})();
+// auto-login moved to end of script
 
 /* ── STATE ── */
-let S={pts:0,streak:0,tdPts:0,lastDate:'',dayTasks:[],weekTasks:[],courses:[],ptsHist:[],alertDismissed:false,semStart:'',semTotal:18,rdDays:14,bestPts:0};
+const DEFAULT_SHOP=[
+  {id:1,icon:'☕',name:'奶茶一杯',cost:50},
+  {id:2,icon:'🎮',name:'游戏30分钟',cost:80},
+  {id:3,icon:'📺',name:'追剧一集',cost:60},
+  {id:4,icon:'🛁',name:'泡澡放松',cost:40},
+  {id:5,icon:'📚',name:'购买新书',cost:150},
+  {id:6,icon:'🌴',name:'户外散步',cost:30},
+  {id:7,icon:'🎵',name:'音乐时光',cost:35},
+  {id:8,icon:'🍕',name:'美食犒劳',cost:100}
+];
+const STAR_PTS=[0,1,3,5,8,12]; // index = star level (0-5), value = total points for that level
+let S={pts:0,streak:0,tdPts:0,lastDate:'',dayTasks:[],weekTasks:[],courses:[],ptsHist:[],alertDismissed:false,semStart:'',semTotal:18,rdDays:14,bestPts:0,
+  shopItems:null,
+  schedule:{
+    wakeTime:'07:00',sleepTime:'23:30',
+    meals:[
+      {name:'早餐',start:'07:30',duration:30},
+      {name:'午餐',start:'12:00',duration:60},
+      {name:'晚餐',start:'18:00',duration:60}
+    ]
+  }};
 let timers={},cIdx=0;
 const CLR=['c0','c1','c2','c3','c4','c5','c6','c7'];
-function loadData(){const d=gD(CU);if(d){const today=new Date().toDateString();if(d.lastDate!==today){d.dayTasks=[];d.tdPts=0;d.streak=0;d.lastDate=today;d.alertDismissed=false}S={...S,...d}}else S.lastDate=new Date().toDateString()}
+function loadData(){
+  const d=gD(CU);
+  if(d){const today=new Date().toDateString();if(d.lastDate!==today){d.dayTasks=[];d.tdPts=0;d.streak=0;d.lastDate=today;d.alertDismissed=false}S={...S,...d}}
+  else S.lastDate=new Date().toDateString();
+  if(!S.shopItems||!S.shopItems.length)S.shopItems=JSON.parse(JSON.stringify(DEFAULT_SHOP));
+}
 function saveAll(){if(!CU)return;if(S.pts>S.bestPts)S.bestPts=S.pts;sD(CU,{...S,dayTasks:S.dayTasks.map(t=>({...t,running:false}))})}
 setInterval(saveAll,30000);
 
@@ -551,16 +630,120 @@ function switchTab(t){document.querySelectorAll('.tab-panel').forEach(p=>p.class
 
 /* ── SMART SCHEDULE ── */
 function mtt(m){return String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(m%60).padStart(2,'0')}
+function ttm(s){if(!s)return null;const m=s.match(/^(\d{1,2}):(\d{2})$/);return m?+m[1]*60+ +m[2]:null}
+
+// Build list of unavailable blocks (meals + sleep)
+function getBlocks(){
+  const sch=S.schedule||{};
+  const blocks=[];
+  // Meals
+  (sch.meals||[]).forEach(m=>{
+    const start=ttm(m.start);if(start===null)return;
+    blocks.push({start,end:start+(m.duration||30),label:'🍽 '+m.name,kind:'meal'});
+  });
+  // Sleep block: from sleep time of previous day (or just from sleepTime) - actually treat as: after sleepTime, no scheduling until wakeTime next day
+  const wake=ttm(sch.wakeTime||'07:00'),sleep=ttm(sch.sleepTime||'23:30');
+  // Mark before-wake as blocked (e.g. 0:00 - wake)
+  if(wake>0)blocks.push({start:0,end:wake,label:'🌙 睡眠',kind:'sleep'});
+  // Mark after-sleep as blocked (sleep - 24:00)
+  if(sleep<1440)blocks.push({start:sleep,end:1440,label:'🌙 睡眠',kind:'sleep'});
+  return blocks.sort((a,b)=>a.start-b.start);
+}
+
+// Find next available minute >= target, considering blocks
+function findNextFree(target,blocks){
+  let t=target;
+  for(let i=0;i<blocks.length;i++){
+    const b=blocks[i];
+    if(t<b.start)return t;
+    if(t>=b.start&&t<b.end){t=b.end;i=-1;continue} // restart since jumping forward
+  }
+  return t;
+}
+// Try to fit duration starting at start, avoiding blocks AND fixed task slots
+function canFitAt(start,duration,blocks,fixedSlots){
+  const end=start+duration;
+  for(const b of blocks){if(start<b.end&&end>b.start)return false}
+  for(const f of fixedSlots){if(start<f.end&&end>f.start)return false}
+  return true;
+}
+function findSlot(target,duration,blocks,fixedSlots){
+  let t=Math.max(target,findNextFree(target,blocks));
+  let guard=0;
+  while(guard++<200){
+    if(!canFitAt(t,duration,blocks,fixedSlots)){
+      // Find next conflict end and jump past it
+      let nextEnd=t+5;
+      for(const b of blocks){if(t<b.end&&t+duration>b.start){nextEnd=Math.max(nextEnd,b.end);break}}
+      for(const f of fixedSlots){if(t<f.end&&t+duration>f.start){nextEnd=Math.max(nextEnd,f.end);break}}
+      t=findNextFree(nextEnd,blocks);
+      continue;
+    }
+    return t;
+  }
+  return t;
+}
+
 function buildSched(tasks){
-  const act=tasks.filter(t=>!t.done);const now=new Date();let cm=Math.ceil((now.getHours()*60+now.getMinutes())/5)*5;
-  const r=[];let wa=0,cy=0;
-  for(let i=0;i<act.length;i++){const t=act[i];if(wa>=60&&i>0){cy++;const bd=cy%2===0?20:10;r.push({brk:true,dur:bd,sm:cm,lbl:cy%2===0?'长休息 ☕':'短休息 🌿'});cm+=bd;wa=0}r.push({...t,sm:cm,ss:mtt(cm)});cm+=t.duration;wa+=t.duration}return r;
+  // Separate: fixed tasks (anchored) vs floating
+  const act=tasks.filter(t=>!t.done);
+  const fixed=act.filter(t=>t.fixedTime).map(t=>({...t,sm:ttm(t.fixedTime),ss:t.fixedTime})).sort((a,b)=>a.sm-b.sm);
+  const floating=act.filter(t=>!t.fixedTime);
+  const blocks=getBlocks();
+  // Fixed slots prevent floating tasks from overlapping
+  const fixedSlots=fixed.map(f=>({start:f.sm,end:f.sm+f.duration}));
+
+  const now=new Date();
+  let cm=Math.ceil((now.getHours()*60+now.getMinutes())/5)*5;
+  cm=findNextFree(cm,blocks); // skip past meals/sleep if currently in one
+
+  // Schedule floating tasks
+  const result=[];
+  let workAcc=0,cycle=0;
+
+  for(let i=0;i<floating.length;i++){
+    const t=floating[i];
+    // Break logic
+    if(workAcc>=60&&i>0){
+      cycle++;
+      const bd=cycle%2===0?20:10;
+      const brkSlot=findSlot(cm,bd,blocks,fixedSlots);
+      // Only insert break if it doesn't push too far (sanity)
+      result.push({brk:true,dur:bd,sm:brkSlot,lbl:cycle%2===0?'长休息 ☕':'短休息 🌿'});
+      cm=brkSlot+bd;workAcc=0;
+    }
+    const slot=findSlot(cm,t.duration,blocks,fixedSlots);
+    result.push({...t,sm:slot,ss:mtt(slot)});
+    cm=slot+t.duration;workAcc+=t.duration;
+  }
+
+  // Merge fixed tasks into result (sorted by time)
+  fixed.forEach(f=>result.push({...f,isFixed:true}));
+  // Insert meal/sleep markers that fall within scheduling range
+  const minT=result.length?Math.min(...result.map(r=>r.sm)):cm;
+  const maxT=result.length?Math.max(...result.map(r=>r.sm+(r.dur||r.duration))):cm+60;
+  blocks.forEach(b=>{
+    if(b.kind==='sleep')return; // don't clutter preview with sleep block
+    if(b.end>minT-30&&b.start<maxT+30)result.push({brk:true,dur:b.end-b.start,sm:b.start,lbl:b.label,isMeal:true});
+  });
+
+  return result.sort((a,b)=>a.sm-b.sm);
 }
 function renderSchedPrev(){
   const act=S.dayTasks.filter(t=>!t.done);const el=document.getElementById('schedPrev');
   if(!act.length){el.style.display='none';return}el.style.display='block';
-  const sc=buildSched(S.dayTasks);sc.forEach(s=>{if(!s.brk){const t=S.dayTasks.find(t=>t.id===s.id);if(t&&!t.running&&!t.done)t.startTime=s.ss}});
-  el.innerHTML=`<div class="sched-prev"><div class="sched-title">✦ 智能排程预览 — 点击任务直接开始计时</div>${sc.map(s=>s.brk?`<div class="sched-slot"><span class="slt">${mtt(s.sm)}</span><div style="width:8px;height:8px;border-radius:2px;background:rgba(0,230,118,.45);flex-shrink:0"></div><span class="sbrk">${s.lbl}</span><span class="sdur">${s.dur}min</span></div>`:`<div class="sched-slot cl" onclick="stById(${s.id})"><span class="slt">${s.ss}</span><div style="width:8px;height:8px;border-radius:2px;flex-shrink:0" class="${s.color||'c0'}"></div><span class="sname">${s.name}</span><span class="sdur">${s.duration}min</span></div>`).join('')}</div>`;
+  const sc=buildSched(S.dayTasks);
+  // Only update startTime for non-fixed, non-done, non-running tasks
+  sc.forEach(s=>{
+    if(s.brk||s.isFixed)return;
+    const t=S.dayTasks.find(t=>t.id===s.id);
+    if(t&&!t.running&&!t.done&&!t.fixedTime)t.startTime=s.ss;
+  });
+  el.innerHTML=`<div class="sched-prev"><div class="sched-title">✦ 智能排程预览 — 点击任务直接开始计时</div>${sc.map(s=>{
+    if(s.isMeal)return `<div class="sched-slot"><span class="slt">${mtt(s.sm)}</span><div style="width:8px;height:8px;border-radius:2px;background:rgba(255,167,38,.5);flex-shrink:0"></div><span class="sbrk">${s.lbl}</span><span class="sdur">${s.dur}min</span></div>`;
+    if(s.brk)return `<div class="sched-slot"><span class="slt">${mtt(s.sm)}</span><div style="width:8px;height:8px;border-radius:2px;background:rgba(0,230,118,.45);flex-shrink:0"></div><span class="sbrk">${s.lbl}</span><span class="sdur">${s.dur}min</span></div>`;
+    return `<div class="sched-slot cl" onclick="stById(${s.id})"><span class="slt">${s.ss}${s.isFixed?'<span style=\"color:var(--gold);margin-left:3px\" title=\"固定时间\">📌</span>':''}</span><div style="width:8px;height:8px;border-radius:2px;flex-shrink:0" class="${s.color||'c0'}"></div><span class="sname">${s.name}</span><span class="sdur">${s.duration}min</span></div>`;
+  }).join('')}</div>`;
 }
 function stById(id){const t=S.dayTasks.find(t=>t.id===id);if(t&&!t.running&&!t.done)togTimer(id)}
 
@@ -568,11 +751,25 @@ function stById(id){const t=S.dayTasks.find(t=>t.id===id);if(t&&!t.running&&!t.d
 function renderTl(){
   const ax=document.getElementById('tlAxis'),tl=document.getElementById('tlTasks');ax.innerHTML='';
   const ne=document.createElement('div');ne.className='tl-now';ne.id='tlNow';tl.innerHTML='';tl.appendChild(ne);
-  const SH=7,EH=24,TOT=EH-SH;const now=new Date(),nowH=now.getHours()+now.getMinutes()/60;
+  const SH=6,EH=24,TOT=EH-SH;const now=new Date(),nowH=now.getHours()+now.getMinutes()/60;
   ne.style.left=Math.max(0,Math.min(100,((nowH-SH)/TOT)*100))+'%';
   document.getElementById('nowDisp').textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
   for(let h=SH;h<EH;h++){const sl=document.createElement('div');sl.className='tl-sl';const lb=document.createElement('div');lb.className='tl-lbl';lb.textContent=h%2===0?h+':00':'';const bw=document.createElement('div');bw.className='tl-bar';const busy=S.dayTasks.filter(t=>{const s=p2h(t.startTime);return s!==null&&h>=s&&h<s+t.duration/60});if(busy.length){const f=document.createElement('div');f.className='tl-fill';f.style.cssText=`height:70%;background:${busy[0].brk?'rgba(0,230,118,.3)':'rgba(21,101,192,.52)'}`;bw.appendChild(f)}sl.appendChild(lb);sl.appendChild(bw);ax.appendChild(sl)}
-  S.dayTasks.forEach(t=>{const s=p2h(t.startTime);if(s===null)return;const l=((s-SH)/TOT)*100,w=(t.duration/60/TOT)*100;const b=document.createElement('div');b.className='tl-block '+(t.brk?'brk':(t.color||'c0'));b.style.cssText=`left:${l}%;width:${Math.max(w,1)}%`;b.title=t.name+' ('+t.duration+'min)';b.textContent=t.name;if(t.done)b.style.opacity='.26';tl.appendChild(b)});
+  // Render meal/sleep blocks as background
+  const blocks=getBlocks();
+  blocks.forEach(b=>{
+    const sH=b.start/60,eH=b.end/60;
+    if(eH<SH||sH>EH)return;
+    const ls=Math.max(SH,sH),le=Math.min(EH,eH);
+    const l=((ls-SH)/TOT)*100,w=((le-ls)/TOT)*100;
+    const bg=document.createElement('div');
+    bg.style.cssText=`position:absolute;left:${l}%;width:${w}%;top:0;height:80%;background:${b.kind==='meal'?'rgba(255,167,38,.08)':'rgba(124,77,255,.08)'};border-left:1px dashed ${b.kind==='meal'?'rgba(255,167,38,.3)':'rgba(124,77,255,.3)'};pointer-events:none;z-index:1;display:flex;align-items:flex-start;justify-content:center;padding-top:2px`;
+    const lbl=document.createElement('div');
+    lbl.style.cssText=`font-size:.48rem;color:${b.kind==='meal'?'rgba(255,167,38,.7)':'rgba(124,77,255,.7)'};font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden`;
+    lbl.textContent=b.label;
+    bg.appendChild(lbl);ax.appendChild(bg);
+  });
+  S.dayTasks.forEach(t=>{const s=p2h(t.startTime);if(s===null)return;const l=((s-SH)/TOT)*100,w=(t.duration/60/TOT)*100;const b=document.createElement('div');b.className='tl-block '+(t.brk?'brk':(t.color||'c0'));b.style.cssText=`left:${l}%;width:${Math.max(w,1)}%`;b.title=(t.fixedTime?'📌 ':'')+t.name+' ('+t.duration+'min)';b.textContent=(t.fixedTime?'📌':'')+t.name;if(t.done)b.style.opacity='.26';tl.appendChild(b)});
 }
 function p2h(s){if(!s)return null;const m=s.match(/^(\d{1,2}):(\d{2})$/);return m?+m[1]+ +m[2]/60:null}
 setInterval(renderTl,60000);
@@ -641,16 +838,17 @@ function togWDoneFromDay(id){
 /* ── DAY TASKS ── */
 function addDTask(){
   const name=document.getElementById('dName').value.trim(),dur=parseInt(document.getElementById('dDur').value)||60;
+  const fixed=document.getElementById('dFixed').value||null;
   if(!name){showN('请输入任务名称 ✦');return}
-  S.dayTasks.push({id:Date.now(),name,duration:dur,startTime:null,done:false,elapsed:0,running:false,color:CLR[cIdx++%CLR.length]});
-  document.getElementById('dName').value='';document.getElementById('dDur').value='';
-  renderSchedPrev();renderDTasks();renderTl();showN('任务已添加 · 排程已更新 ✦');saveAll();
+  S.dayTasks.push({id:Date.now(),name,duration:dur,startTime:fixed,fixedTime:fixed,done:false,elapsed:0,running:false,color:CLR[cIdx++%CLR.length]});
+  document.getElementById('dName').value='';document.getElementById('dDur').value='';document.getElementById('dFixed').value='';
+  renderSchedPrev();renderDTasks();renderTl();showN(fixed?`任务已固定在 ${fixed} ✦`:'任务已添加 · 排程已更新 ✦');saveAll();
 }
 function renderDTasks(){
   const list=document.getElementById('dTaskList');
   if(!S.dayTasks.length){list.innerHTML='<div class="empty"><div class="ei">🌌</div>添加你的第一个任务，开始今日探索</div>';updDStats();return}
   list.innerHTML=S.dayTasks.map(t=>{const el=t.elapsed+(timers[t.id]?.delta||0),ovr=!t.done&&el>t.duration*60&&el>0;
-    return `<div class="titem ${t.running?'run':''} ${t.done?'done':''} ${ovr?'ovr':''}" id="ti${t.id}"><div class="tchk ${t.done?'chk':''}" onclick="togDone(${t.id})"></div><div class="tinfo"><div class="tn">${t.name}</div><div class="tm">预计${t.duration}min · ${t.startTime||'待排程'}${ovr?' · <span style="color:#ff7b7b">超时</span>':''}</div></div><div class="ttimer ${t.running?'':'psd'} ${ovr&&t.running?'ovr':''}">${fmt(el)}</div><div class="tact">${!t.done?`<button class="btn ${t.running?'btn-ghost':'btn-accent'} btn-sm" onclick="togTimer(${t.id})">${t.running?'⏸':'▶'}</button>`:''}<button class="btn btn-ghost btn-icon" onclick="openEdit('day',${t.id})" title="编辑">✎</button><button class="btn btn-danger btn-icon" onclick="remDTask(${t.id})">✕</button></div></div>`;
+    return `<div class="titem ${t.running?'run':''} ${t.done?'done':''} ${ovr?'ovr':''}" id="ti${t.id}"><div class="tchk ${t.done?'chk':''}" onclick="togDone(${t.id})"></div><div class="tinfo"><div class="tn">${t.name}</div><div class="tm">预计${t.duration}min · ${t.startTime||'待排程'}${t.fixedTime?' <span style="color:var(--gold)" title="固定时间">📌</span>':''}${ovr?' · <span style="color:#ff7b7b">超时</span>':''}</div></div><div class="ttimer ${t.running?'':'psd'} ${ovr&&t.running?'ovr':''}">${fmt(el)}</div><div class="tact">${!t.done?`<button class="btn ${t.running?'btn-ghost':'btn-accent'} btn-sm" onclick="togTimer(${t.id})">${t.running?'⏸':'▶'}</button>`:''}<button class="btn btn-ghost btn-icon" onclick="openEdit('day',${t.id})" title="编辑">✎</button><button class="btn btn-danger btn-icon" onclick="remDTask(${t.id})">✕</button></div></div>`;
   }).join('');updDStats();
 }
 function togTimer(id){
@@ -724,21 +922,35 @@ function addCourse(){
   if(!name){showN('请输入科目名称 ✦');return}
   if(!S.courses)S.courses=[];S.courses.push({id:Date.now(),name,icon,total:tot,examDate:exam||null,chapters:[],ci:ccIdx++%8,done:false});
   document.getElementById('crsName').value='';document.getElementById('crsTot').value='';document.getElementById('crsExam').value='';
-  renderCourses();checkExams();showN('科目已添加 ✦');saveAll();
+  renderCourses();renderSemBar();checkExams();updateCountdown();showN('科目已添加 ✦');saveAll();
 }
 function renderCourses(){
   if(!S.courses)S.courses=[];const g=document.getElementById('cGrid');
   if(!S.courses.length){g.innerHTML='<div class="empty"><div class="ei">📚</div>添加科目，开始追踪学习进度</div>';return}
   g.innerHTML=S.courses.map(c=>{
     const mastered=c.chapters.filter(ch=>ch&&ch.stars>=3).length,touched=c.chapters.filter(ch=>ch&&ch.stars>=1).length,pct=Math.round(mastered/c.total*100),pfcl=PFCL[c.ci||0];
-    const chs=Array.from({length:c.total},(_,i)=>{const ch=c.chapters[i]||{stars:0,name:''};return `<div class="ch-item"><span class="ch-num">Ch.${i+1}</span><span class="ch-name">${ch.name||'第'+(i+1)+'章'}</span><div class="ch-stars">${[1,2,3,4,5].map(s=>`<span class="chstar ${ch.stars>=s?'lit':''}" onclick="setStar(${c.id},${i},${s})" title="${['未学','了解','熟悉','掌握','精通'][s-1]}">⭐</span>`).join('')}</div></div>`;}).join('');
-    return `<div class="ccard cf${c.ci||0}"><div class="chdr"><span class="cicn">${c.icon}</span><div style="flex:1;min-width:0"><div class="cname">${c.name}</div><div class="cmeta">共${c.total}章 · 掌握${mastered} · ${pct}%${c.examDate?' · '+c.examDate:''}</div></div><button class="btn btn-danger btn-icon" onclick="remCourse(${c.id})">✕</button></div><div class="cpbar"><div class="cpfill ${pfcl}" style="width:${pct}%"></div></div><div style="display:flex;gap:4px;margin:6px 0 4px;flex-wrap:wrap"><span style="font-size:.62rem;padding:2px 6px;border-radius:4px;background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.2);color:#80cbc4">✓${mastered}</span><span style="font-size:.62rem;padding:2px 6px;border-radius:4px;background:rgba(66,165,245,.07);border:1px solid rgba(66,165,245,.2);color:#90caf9">~${touched}</span><span style="font-size:.62rem;padding:2px 6px;border-radius:4px;background:rgba(255,82,82,.06);border:1px solid rgba(255,82,82,.16);color:#ef9a9a">✗${c.total-touched}</span></div><div class="coll-hdr" onclick="togColl('c${c.id}')" style="padding:7px 9px;font-size:.72rem;margin-top:4px"><span class="carr" id="carr-c${c.id}">▶</span>查看/编辑各章节</div><div class="cbody" id="cbody-c${c.id}"><div class="ch-list" style="margin-top:6px">${chs}</div><div style="margin-top:7px;display:flex;align-items:center;gap:5px"><button class="btn-link" onclick="togChF(${c.id})">✎ 重命名章节</button></div><div class="ch-add-form" id="chf${c.id}"><input type="number" min="1" max="${c.total}" placeholder="章节号" id="chi${c.id}" style="flex:0 0 68px !important;width:68px !important"><input placeholder="章节名" id="chn${c.id}" style="flex:1"><button class="btn btn-accent btn-sm" onclick="renCh(${c.id})">确认</button></div></div></div>`;
+    const chs=Array.from({length:c.total},(_,i)=>{const ch=c.chapters[i]||{stars:0,name:''};return `<div class="ch-item"><span class="ch-num">Ch.${i+1}</span><span class="ch-name">${ch.name||'第'+(i+1)+'章'}</span><div class="ch-stars">${[1,2,3,4,5].map(s=>`<span class="chstar ${ch.stars>=s?'lit':''}" onclick="setStar(${c.id},${i},${s})" title="${['了解','熟悉','掌握','精通','大师'][s-1]} (+${STAR_PTS[s]}pts)">⭐</span>`).join('')}</div></div>`;}).join('');
+    return `<div class="ccard cf${c.ci||0}"><div class="chdr"><span class="cicn">${c.icon}</span><div style="flex:1;min-width:0"><div class="cname">${c.name}</div><div class="cmeta">共${c.total}章 · 掌握${mastered} · ${pct}%${c.examDate?' · '+c.examDate:''}</div></div><button class="btn btn-ghost btn-icon" onclick="openEditCourse(${c.id})" title="编辑">✎</button><button class="btn btn-danger btn-icon" onclick="remCourse(${c.id})" style="margin-left:4px">✕</button></div><div class="cpbar"><div class="cpfill ${pfcl}" style="width:${pct}%"></div></div><div style="display:flex;gap:4px;margin:6px 0 4px;flex-wrap:wrap"><span style="font-size:.62rem;padding:2px 6px;border-radius:4px;background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.2);color:#80cbc4">✓${mastered}</span><span style="font-size:.62rem;padding:2px 6px;border-radius:4px;background:rgba(66,165,245,.07);border:1px solid rgba(66,165,245,.2);color:#90caf9">~${touched}</span><span style="font-size:.62rem;padding:2px 6px;border-radius:4px;background:rgba(255,82,82,.06);border:1px solid rgba(255,82,82,.16);color:#ef9a9a">✗${c.total-touched}</span></div><div class="coll-hdr" onclick="togColl('c${c.id}')" style="padding:7px 9px;font-size:.72rem;margin-top:4px"><span class="carr" id="carr-c${c.id}">▶</span>查看/编辑各章节</div><div class="cbody" id="cbody-c${c.id}"><div class="ch-list" style="margin-top:6px">${chs}</div><div style="margin-top:7px;display:flex;align-items:center;gap:5px"><button class="btn-link" onclick="togChF(${c.id})">✎ 重命名章节</button></div><div class="ch-add-form" id="chf${c.id}"><input type="number" min="1" max="${c.total}" placeholder="章节号" id="chi${c.id}" style="flex:0 0 68px !important;width:68px !important"><input placeholder="章节名" id="chn${c.id}" style="flex:1"><button class="btn btn-accent btn-sm" onclick="renCh(${c.id})">确认</button></div></div></div>`;
   }).join('');
 }
-function setStar(cid,ci,s){const c=S.courses.find(c=>c.id===cid);if(!c)return;if(!c.chapters[ci])c.chapters[ci]={stars:0,name:''};const prev=c.chapters[ci].stars;c.chapters[ci].stars=s===prev?0:s;if(c.chapters[ci].stars>=3&&prev<3)addPts(5,`「${c.name}」第${ci+1}章掌握 ⭐`);renderCourses();saveAll()}
+function setStar(cid,ci,s){
+  const c=S.courses.find(c=>c.id===cid);if(!c)return;
+  if(!c.chapters[ci])c.chapters[ci]={stars:0,name:''};
+  const prev=c.chapters[ci].stars||0;
+  const newLevel=s===prev?0:s; // click same star → clear
+  c.chapters[ci].stars=newLevel;
+  // Differential points based on STAR_PTS
+  const diff=STAR_PTS[newLevel]-STAR_PTS[prev];
+  if(diff!==0){
+    const levelName=['未学','了解','熟悉','掌握','精通','大师'][newLevel];
+    if(diff>0)addPts(diff,`「${c.name}」第${ci+1}章 → ${levelName} ⭐`);
+    else{S.pts=Math.max(0,S.pts+diff);S.tdPts=Math.max(0,S.tdPts+diff);S.ptsHist.unshift({pts:diff,desc:`「${c.name}」第${ci+1}章 → ${['未学','了解','熟悉','掌握','精通','大师'][newLevel]}`,t:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})});if(S.ptsHist.length>60)S.ptsHist.pop();updPtsUI();updateShop()}
+  }
+  renderCourses();saveAll();
+}
 function togChF(cid){const f=document.getElementById('chf'+cid);f.classList.toggle('open');f.style.display=f.classList.contains('open')?'flex':'none'}
 function renCh(cid){const c=S.courses.find(c=>c.id===cid);if(!c)return;const idx=parseInt(document.getElementById('chi'+cid).value)-1,name=document.getElementById('chn'+cid).value.trim();if(isNaN(idx)||idx<0||idx>=c.total){showN('章节号超出范围');return}if(!c.chapters[idx])c.chapters[idx]={stars:0,name:''};c.chapters[idx].name=name;renderCourses();saveAll();showN('章节名已更新 ✦')}
-function remCourse(id){if(!confirm('确认删除该科目？'))return;S.courses=S.courses.filter(c=>c.id!==id);renderCourses();checkExams();saveAll()}
+function remCourse(id){if(!confirm('确认删除该科目？'))return;S.courses=S.courses.filter(c=>c.id!==id);renderCourses();renderSemBar();checkExams();updateCountdown();saveAll()}
 
 /* ── SEM BAR ── */
 function renderSemBar(){
@@ -754,7 +966,7 @@ function renderExamList(){
   if(!S.courses)return;const exams=(S.courses||[]).filter(c=>c.examDate).sort((a,b)=>new Date(a.examDate)-new Date(b.examDate));const card=document.getElementById('examListCard');if(!exams.length){card.style.display='none';return}card.style.display='block';const now=new Date(),rd=parseInt(document.getElementById('rdDays').value)||14;
   document.getElementById('examList').innerHTML=exams.map(c=>{const d=Math.ceil((new Date(c.examDate)-now)/86400000),mastered=(c.chapters||[]).filter(ch=>ch&&ch.stars>=3).length,urgent=!c.done&&d>=0&&d<=rd;return `<div class="exam-item ${urgent?'urgent':''} ${c.done?'done':''}"><div class="exam-icn" style="background:rgba(${urgent?'255,82,82':'66,165,245'},.09)">${c.icon}</div><div class="exam-info"><div class="exam-name">${c.name}${d>=0&&d<=rd?`<span class="rbadge">⏰ ${d}天</span>`:''}</div><div class="exam-meta">${c.examDate} · 掌握${mastered}/${c.total}章${urgent?` · 每日~${Math.ceil(30/Math.max(1,d))}min`:''}${c.done?' · ✓已完成':''}</div></div><button class="btn ${c.done?'btn-ghost':'btn-success'} btn-sm" onclick="togCrsExam(${c.id})">${c.done?'取消':'✓ 完成'}</button></div>`;}).join('');
 }
-function togCrsExam(id){const c=S.courses.find(c=>c.id===id);if(!c)return;const w=c.done;c.done=!c.done;if(c.done&&!w)addPts(20,`完成科目「${c.name}」🎉`);renderExamList();saveAll()}
+function togCrsExam(id){const c=S.courses.find(c=>c.id===id);if(!c)return;const w=c.done;c.done=!c.done;if(c.done&&!w)addPts(20,`完成科目「${c.name}」🎉`);renderExamList();updateCountdown();saveAll()}
 function checkExams(){if(S.alertDismissed)return;const now=new Date(),rd=parseInt(document.getElementById('rdDays')?.value)||14;const al=(S.courses||[]).filter(c=>{if(!c.examDate||c.done)return false;const d=Math.ceil((new Date(c.examDate)-now)/86400000);return d>=0&&d<=rd});const bn=document.getElementById('examAlertBanner');if(al.length){bn.style.display='block';document.getElementById('alertItems').innerHTML=al.map(c=>{const d=Math.ceil((new Date(c.examDate)-now)/86400000);return `📝 ${c.name} — 距考试 <strong style="color:#ff8a80">${d}</strong> 天，建议每日复习约 ${Math.ceil(60/Math.max(1,d))} 分钟`;}).join('<br>')}else bn.style.display='none'}
 function dismissAlert(){S.alertDismissed=true;document.getElementById('examAlertBanner').style.display='none';setTimeout(()=>{S.alertDismissed=false;checkExams()},3600000)}
 
@@ -817,6 +1029,22 @@ function updateShop(){
   document.getElementById('shLv').textContent=lv.n;if(nx){document.getElementById('shNx').textContent=(nx.m-S.pts)+' pts';document.getElementById('shPF').style.width=((S.pts-lv.m)/(nx.m-lv.m)*100)+'%'}else{document.getElementById('shNx').textContent='已满级 🌟';document.getElementById('shPF').style.width='100%'}
   const h=document.getElementById('ptsHist');if(!S.ptsHist.length){h.innerHTML='<div class="empty" style="padding:12px"><div class="ei">📊</div>完成任务后积分记录将在这里显示</div>';return}
   h.innerHTML=S.ptsHist.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 9px;background:rgba(3,10,28,.55);border-radius:6px;border:1px solid rgba(100,181,246,.13)"><span style="font-size:.74rem;color:#90caf9">${r.desc}</span><div style="display:flex;gap:8px;align-items:center"><span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:${r.pts>0?'var(--gold)':'#ff7b7b'}">${r.pts>0?'+':''}${r.pts}</span><span style="font-size:.58rem;color:#546e7a">${r.t}</span></div></div>`).join('');
+  // Render shop items
+  const sg=document.getElementById('shopGrid');
+  if(sg){
+    if(!S.shopItems||!S.shopItems.length){sg.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">🎁</div>暂无兑换项，点击「＋ 添加」创建</div>'}
+    else{
+      sg.innerHTML=S.shopItems.map(item=>{
+        const canAfford=S.pts>=item.cost;
+        return `<div class="shi" style="position:relative" onclick="redeem('${item.icon} ${item.name}',${item.cost})">
+          <div class="shi-icon">${item.icon}</div>
+          <div class="shi-name">${item.name}</div>
+          <div class="shi-cost" style="${canAfford?'':'opacity:.4'}">${item.cost} pts</div>
+          <span style="position:absolute;top:6px;right:6px;font-size:.7rem;opacity:.4;cursor:pointer;padding:3px 6px;border-radius:5px" onclick="event.stopPropagation();openShopEdit(${item.id})" title="编辑">✎</span>
+        </div>`;
+      }).join('');
+    }
+  }
 }
 function redeem(item,cost){if(S.pts<cost){showN(`积分不足，还需 ${cost-S.pts} pts`);return}if(!confirm(`确认兑换「${item}」，消耗 ${cost} 积分？`))return;S.pts-=cost;S.ptsHist.unshift({pts:-cost,desc:`兑换 ${item}`,t:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})});updPtsUI();updateShop();showN(`兑换成功！享受你的 ${item} 🎉`);saveAll()}
 
@@ -828,8 +1056,177 @@ function showN(m){const n=document.getElementById('notif');n.textContent=m;n.cla
 /* ── INIT ── */
 function initApp(){
   if(S.semStart)document.getElementById('semStart').value=S.semStart;if(S.semTotal)document.getElementById('semTotal').value=S.semTotal;
-  calcCurWeek();renderDTasks();renderSchedPrev();renderTl();renderWGrid();renderWeekDueToday();renderSemBar();renderCourses();updPtsUI();updateShop();checkExams();autoUploadScore();
+  loadScheduleUI();
+  calcCurWeek();renderDTasks();renderSchedPrev();renderTl();renderWGrid();renderWeekDueToday();renderSemBar();renderCourses();updPtsUI();updateShop();checkExams();updateCountdown();autoUploadScore();
 }
+
+/* ── DAILY SCHEDULE CONFIG ── */
+function loadScheduleUI(){
+  if(!S.schedule)S.schedule={wakeTime:'07:00',sleepTime:'23:30',meals:[{name:'早餐',start:'07:30',duration:30},{name:'午餐',start:'12:00',duration:60},{name:'晚餐',start:'18:00',duration:60}]};
+  document.getElementById('cfgWake').value=S.schedule.wakeTime;
+  document.getElementById('cfgSleep').value=S.schedule.sleepTime;
+  renderMealList();
+  updateSchedSummary();
+}
+function renderMealList(){
+  const list=document.getElementById('mealList');
+  if(!S.schedule.meals||!S.schedule.meals.length){list.innerHTML='<div style="font-size:.72rem;color:#546e7a;padding:6px">暂无用餐时段</div>';return}
+  list.innerHTML=S.schedule.meals.map((m,i)=>`
+    <div style="display:flex;gap:8px;align-items:flex-end;background:rgba(3,10,28,.4);padding:8px;border-radius:8px;border:1px solid rgba(100,181,246,.15)">
+      <div class="fw" style="flex:1.2"><label class="ilbl">名称</label><input id="mn${i}" value="${m.name}" onchange="updateMeal(${i})"></div>
+      <div class="fw" style="flex:1"><label class="ilbl">开始</label><input type="time" id="ms${i}" value="${m.start}" onchange="updateMeal(${i})"></div>
+      <div class="fw" style="flex:.8"><label class="ilbl">时长 min</label><input type="number" id="md${i}" value="${m.duration}" min="10" max="180" onchange="updateMeal(${i})"></div>
+      <button class="btn btn-danger btn-icon" onclick="removeMeal(${i})" title="删除">✕</button>
+    </div>
+  `).join('');
+}
+function updateMeal(i){
+  const m=S.schedule.meals[i];if(!m)return;
+  m.name=document.getElementById('mn'+i).value.trim()||'用餐';
+  m.start=document.getElementById('ms'+i).value;
+  m.duration=parseInt(document.getElementById('md'+i).value)||30;
+  updateSchedule();
+}
+function addMeal(){
+  if(!S.schedule.meals)S.schedule.meals=[];
+  S.schedule.meals.push({name:'加餐',start:'15:00',duration:20});
+  renderMealList();updateSchedule();
+}
+function removeMeal(i){
+  if(!confirm('删除该用餐时段？'))return;
+  S.schedule.meals.splice(i,1);
+  renderMealList();updateSchedule();
+}
+function updateSchedule(){
+  S.schedule.wakeTime=document.getElementById('cfgWake').value||'07:00';
+  S.schedule.sleepTime=document.getElementById('cfgSleep').value||'23:30';
+  updateSchedSummary();
+  renderSchedPrev();renderTl();saveAll();
+}
+function updateSchedSummary(){
+  const s=S.schedule;
+  const mealCount=(s.meals||[]).length;
+  document.getElementById('schedSummary').textContent=`${s.wakeTime}-${s.sleepTime} · ${mealCount}餐`;
+}
+
+/* ── COURSE EDIT ── */
+let editingCourseId=null;
+function openEditCourse(id){
+  const c=S.courses.find(c=>c.id===id);if(!c)return;
+  editingCourseId=id;
+  document.getElementById('ecName').value=c.name;
+  document.getElementById('ecTotal').value=c.total;
+  document.getElementById('ecIcon').value=c.icon;
+  document.getElementById('ecExam').value=c.examDate||'';
+  document.getElementById('editCourseModal').style.display='flex';
+}
+function closeCourseEdit(){document.getElementById('editCourseModal').style.display='none';editingCourseId=null}
+function saveCourseEdit(){
+  if(editingCourseId===null)return;
+  const c=S.courses.find(c=>c.id===editingCourseId);if(!c)return;
+  const name=document.getElementById('ecName').value.trim();
+  const total=parseInt(document.getElementById('ecTotal').value)||c.total;
+  if(!name){showN('名称不能为空');return}
+  if(total<1||total>80){showN('章节数需在1-80之间');return}
+  // If reducing total, deduct points for removed chapters
+  if(total<c.total){
+    let removedPts=0;
+    for(let i=total;i<c.chapters.length;i++){
+      if(c.chapters[i]&&c.chapters[i].stars)removedPts+=STAR_PTS[c.chapters[i].stars]||0;
+    }
+    if(removedPts>0){S.pts=Math.max(0,S.pts-removedPts);S.tdPts=Math.max(0,S.tdPts-removedPts)}
+    c.chapters=c.chapters.slice(0,total);
+  }
+  c.name=name;c.total=total;
+  c.icon=document.getElementById('ecIcon').value;
+  c.examDate=document.getElementById('ecExam').value||null;
+  renderCourses();renderSemBar();checkExams();updateCountdown();updPtsUI();updateShop();saveAll();
+  closeCourseEdit();showN('科目已更新 ✦');
+}
+document.getElementById('editCourseModal').addEventListener('click',function(e){if(e.target===this)closeCourseEdit()});
+
+/* ── SHOP ITEM EDIT ── */
+let editingShopId=null;
+function openShopEdit(id){
+  if(id===null){
+    editingShopId=null;
+    document.getElementById('esTitle').textContent='添加兑换项';
+    document.getElementById('esName').value='';
+    document.getElementById('esIcon').value='';
+    document.getElementById('esCost').value='';
+    document.getElementById('esDeleteBtn').style.display='none';
+  } else {
+    const item=S.shopItems.find(i=>i.id===id);if(!item)return;
+    editingShopId=id;
+    document.getElementById('esTitle').textContent='编辑兑换项';
+    document.getElementById('esName').value=item.name;
+    document.getElementById('esIcon').value=item.icon;
+    document.getElementById('esCost').value=item.cost;
+    document.getElementById('esDeleteBtn').style.display='inline-flex';
+  }
+  document.getElementById('editShopModal').style.display='flex';
+}
+function closeShopEdit(){document.getElementById('editShopModal').style.display='none';editingShopId=null}
+function saveShopItem(){
+  const name=document.getElementById('esName').value.trim();
+  const icon=document.getElementById('esIcon').value.trim()||'🎁';
+  const cost=parseInt(document.getElementById('esCost').value)||0;
+  if(!name){showN('名称不能为空');return}
+  if(cost<=0){showN('积分需大于0');return}
+  if(!S.shopItems)S.shopItems=[];
+  if(editingShopId===null){
+    const maxId=S.shopItems.length?Math.max(...S.shopItems.map(i=>i.id)):0;
+    S.shopItems.push({id:maxId+1,name,icon,cost});
+    showN('兑换项已添加 ✦');
+  } else {
+    const item=S.shopItems.find(i=>i.id===editingShopId);
+    if(item){item.name=name;item.icon=icon;item.cost=cost}
+    showN('兑换项已更新 ✦');
+  }
+  updateShop();saveAll();closeShopEdit();
+}
+function deleteShopItem(){
+  if(editingShopId===null)return;
+  if(!confirm('确认删除该兑换项？'))return;
+  S.shopItems=S.shopItems.filter(i=>i.id!==editingShopId);
+  updateShop();saveAll();closeShopEdit();showN('已删除');
+}
+function resetShop(){
+  if(!confirm('恢复默认兑换商品列表？当前自定义将被覆盖'))return;
+  S.shopItems=JSON.parse(JSON.stringify(DEFAULT_SHOP));
+  updateShop();saveAll();showN('已恢复默认商品');
+}
+document.getElementById('editShopModal').addEventListener('click',function(e){if(e.target===this)closeShopEdit()});
+
+/* ── EXAM COUNTDOWN (top banner) ── */
+function updateCountdown(){
+  const bn=document.getElementById('countdownBanner');
+  if(!bn)return;
+  const exams=(S.courses||[]).filter(c=>c.examDate&&!c.done);
+  if(!exams.length){bn.style.display='none';return}
+  const now=new Date();
+  const upcoming=exams.map(c=>({...c,days:Math.ceil((new Date(c.examDate)-now)/86400000)}))
+    .filter(c=>c.days>=0).sort((a,b)=>a.days-b.days);
+  if(!upcoming.length){bn.style.display='none';return}
+  bn.style.display='flex';
+  const next=upcoming[0];
+  const mastered=(next.chapters||[]).filter(ch=>ch&&ch.stars>=3).length;
+  const remainCh=next.total-mastered;
+  let urgentClass='';
+  if(next.days<=3)urgentClass='urgent-3';
+  else if(next.days<=7)urgentClass='urgent-7';
+  else if(next.days<=14)urgentClass='urgent-14';
+  bn.className='countdown-banner '+urgentClass;
+  document.getElementById('cdIcon').textContent=next.icon;
+  document.getElementById('cdName').textContent=next.name;
+  document.getElementById('cdDays').textContent=next.days;
+  document.getElementById('cdDate').textContent=next.examDate;
+  document.getElementById('cdProgress').textContent=`${mastered}/${next.total}章 · 还剩${remainCh}章`;
+  // Show others count
+  const otherCount=upcoming.length-1;
+  document.getElementById('cdOthers').textContent=otherCount>0?`还有 ${otherCount} 场考试`:'';
+}
+setInterval(updateCountdown,60000);
 
 /* ── EDIT ── */
 let editCtx=null; // {type:'day'|'week', id}
@@ -843,10 +1240,13 @@ function openEdit(type, id){
     const t=S.dayTasks.find(t=>t.id===id);if(!t)return;
     document.getElementById('editName').value=t.name;
     document.getElementById('editDur').value=t.duration;
+    document.getElementById('editFixed').value=t.fixedTime||'';
+    document.getElementById('editFixedWrap').style.display='block';
   } else {
     const t=S.weekTasks.find(t=>t.id===id);if(!t)return;
     document.getElementById('editName').value=t.name;
     document.getElementById('editDur').value=t.duration||'';
+    document.getElementById('editFixedWrap').style.display='none';
     document.getElementById('editDeadlineWrap').style.display='block';
     document.getElementById('editDeadline').value=t.deadline||'';
     document.getElementById('editPriWrap').style.display='block';
@@ -862,6 +1262,10 @@ function saveEdit(){
   if(editCtx.type==='day'){
     const t=S.dayTasks.find(t=>t.id===editCtx.id);if(!t)return;
     t.name=name;if(dur)t.duration=dur;
+    const newFixed=document.getElementById('editFixed').value||null;
+    t.fixedTime=newFixed;
+    if(newFixed)t.startTime=newFixed;
+    else if(t.startTime===t.fixedTime)t.startTime=null; // reset for re-scheduling
     renderDTasks();renderSchedPrev();renderTl();
   } else {
     const t=S.weekTasks.find(t=>t.id===editCtx.id);if(!t)return;
@@ -877,8 +1281,53 @@ function saveEdit(){
 // Close modal on backdrop click
 document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEdit()});
 
+
+/* ── AUTO-LOGIN (must run after all functions defined) ── */
+(function(){const s=localStorage.getItem('lp_s');if(s&&gU()[s])loginOK(s)})();
+
 </script>
 
+
+<!-- COURSE EDIT MODAL -->
+<div id="editCourseModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div style="background:#07182f;border:1px solid rgba(100,181,246,.35);border-radius:18px;padding:26px 28px;width:460px;max-width:calc(100vw - 32px);box-shadow:0 20px 50px rgba(0,0,0,.5)">
+    <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:#bbdefb;margin-bottom:18px;display:flex;align-items:center;gap:8px"><span style="width:5px;height:5px;background:var(--accent);border-radius:50%;box-shadow:0 0 6px var(--accent)"></span>编辑科目</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">科目名称</label><input id="ecName" placeholder="科目名称"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px">
+        <div><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">总章节数</label><input type="number" id="ecTotal" min="1" max="80"></div>
+        <div><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">图标</label><select id="ecIcon"><option>📘</option><option>🔬</option><option>📐</option><option>💻</option><option>⚡</option><option>🧬</option><option>📊</option><option>🎨</option><option>🌍</option><option>📖</option><option>🎓</option><option>🧪</option></select></div>
+        <div><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">考试日期</label><input type="date" id="ecExam"></div>
+      </div>
+      <div style="font-size:.7rem;color:#64b5f6;background:rgba(255,167,38,.05);border:1px solid rgba(255,167,38,.2);border-radius:8px;padding:8px 12px;line-height:1.6">⚠️ 减少章节数会删除超出部分的章节进度</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end">
+      <button class="btn btn-ghost btn-sm" onclick="closeCourseEdit()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveCourseEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHOP ITEM EDIT MODAL -->
+<div id="editShopModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div style="background:#07182f;border:1px solid rgba(255,213,79,.35);border-radius:18px;padding:26px 28px;width:420px;max-width:calc(100vw - 32px);box-shadow:0 20px 50px rgba(0,0,0,.5)">
+    <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:#bbdefb;margin-bottom:18px;display:flex;align-items:center;gap:8px"><span style="width:5px;height:5px;background:var(--gold);border-radius:50%;box-shadow:0 0 6px var(--gold)"></span><span id="esTitle">添加兑换项</span></div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">名称</label><input id="esName" placeholder="例：周末电影"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <div><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">图标（Emoji）</label><input id="esIcon" placeholder="🎬" maxlength="4"></div>
+        <div><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">所需积分</label><input type="number" id="esCost" min="1" max="9999" placeholder="100"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end">
+      <button class="btn btn-danger btn-sm" id="esDeleteBtn" onclick="deleteShopItem()" style="margin-right:auto;display:none">✕ 删除</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeShopEdit()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveShopItem()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM COUNTDOWN BANNER -->
 <!-- EDIT MODAL -->
 <div id="editModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div style="background:#07182f;border:1px solid rgba(100,181,246,.35);border-radius:18px;padding:26px 28px;width:420px;max-width:calc(100vw - 32px);box-shadow:0 20px 50px rgba(0,0,0,.5)">
@@ -889,6 +1338,7 @@ document.getElementById('editModal').addEventListener('click',function(e){if(e.t
       <div><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">任务名称</label><input id="editName" placeholder="任务名称"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">预计时长（分钟）</label><input type="number" id="editDur" min="5" max="480" placeholder="60"></div>
+        <div id="editFixedWrap"><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">固定时间 <span style="opacity:.6">(选填)</span></label><input type="time" id="editFixed"></div>
         <div id="editDeadlineWrap" style="display:none"><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">截止日期</label><input type="date" id="editDeadline"></div>
         <div id="editPriWrap" style="display:none"><label style="font-size:.6rem;color:#90caf9;letter-spacing:.13em;text-transform:uppercase;display:block;margin-bottom:5px">优先级</label><select id="editPri"><option value="high">🔴 高</option><option value="medium">🟡 中</option><option value="low">🟢 低</option></select></div>
       </div>
