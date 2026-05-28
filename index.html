@@ -82,7 +82,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.6) sepia(1) s
 .lfooter{text-align:center;font-size:.65rem;color:#546e7a;margin-top:15px}
 
 /* ── APP ── */
-.app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 20px 60px;display:none}
+.app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 20px 80px;display:none}
 header{display:flex;align-items:center;justify-content:space-between;padding:24px 0 18px;border-bottom:1px solid var(--border);position:relative}
 header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4}
 .logo-main{font-family:'DM Serif Display',serif;font-style:italic;font-size:1.8rem;background:linear-gradient(135deg,var(--accent) 0%,var(--b7) 50%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
@@ -163,6 +163,19 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
 .urgent-7 .cd-days{color:#ffa726;text-shadow:0 0 12px rgba(255,167,38,.4)}
 .urgent-3 .cd-days{color:#ff5252;text-shadow:0 0 14px rgba(255,82,82,.45)}
 .cd-label{font-size:.55rem;color:#64b5f6;letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
+
+/* ── AI CHAT ── */
+.ai-msg{display:flex;flex-direction:column;gap:3px}
+.ai-msg-user{align-items:flex-end}
+.ai-msg-bot{align-items:flex-start}
+.ai-bubble{max-width:88%;padding:9px 13px;border-radius:14px;font-size:.8rem;line-height:1.6;word-break:break-word}
+.ai-msg-user .ai-bubble{background:linear-gradient(135deg,var(--b3),var(--b4));color:#e3f2fd;border-radius:14px 14px 4px 14px}
+.ai-msg-bot .ai-bubble{background:rgba(10,28,58,.8);border:1px solid rgba(100,181,246,.18);color:#cce7ff;border-radius:14px 14px 14px 4px}
+.ai-action-chip{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:4px 10px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);border-radius:20px;font-size:.68rem;color:var(--accent);cursor:pointer;transition:all .2s}
+.ai-action-chip:hover{background:rgba(0,229,255,.15)}
+
+.ai-quick-btn{background:rgba(10,28,58,.7);border:1px solid rgba(100,181,246,.22);color:#90caf9;font-family:'Noto Serif SC',serif;font-size:.7rem;padding:5px 11px;border-radius:20px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.ai-quick-btn:hover{background:rgba(21,68,130,.7);border-color:rgba(100,181,246,.4);color:#e3f2fd}
 
 /* ── EXAM ALERT ── */
 #examAlertBanner{display:none;background:rgba(255,82,82,.08);border:1px solid rgba(255,82,82,.3);border-radius:12px;padding:12px 15px;margin-top:14px;animation:palert 2.5s infinite}
@@ -389,6 +402,60 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
       <button class="btn btn-ghost btn-sm" onclick="dismissAlert()" style="flex-shrink:0;align-self:flex-start">知道了</button>
     </div>
   </div>
+  <!-- AI Chat Toggle -->
+  <button id="aiToggleBtn" onclick="toggleAI()" style="position:fixed;bottom:24px;right:24px;z-index:300;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--b4),var(--accent2));border:none;cursor:pointer;box-shadow:0 4px 20px rgba(124,77,255,.45);display:flex;align-items:center;justify-content:center;font-size:1.4rem;transition:all .3s" title="AI 助手">🤖</button>
+
+  <!-- AI Chat Drawer -->
+  <div id="aiDrawer" style="position:fixed;right:-400px;top:0;bottom:0;width:380px;max-width:100vw;z-index:250;background:rgba(4,12,30,.97);border-left:1px solid rgba(100,181,246,.25);backdrop-filter:blur(20px);transition:right .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,.4)">
+    <!-- Drawer Header -->
+    <div style="padding:18px 18px 14px;border-bottom:1px solid rgba(100,181,246,.18);display:flex;align-items:center;gap:10px;flex-shrink:0">
+      <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--b4),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem">🤖</div>
+      <div style="flex:1">
+        <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:#bbdefb">DeepSeek 助手</div>
+        <div style="font-size:.62rem;color:#546e7a;font-family:'JetBrains Mono',monospace">用自然语言添加/管理任务</div>
+      </div>
+      <button onclick="toggleAI()" style="background:none;border:none;color:#546e7a;font-size:1.2rem;cursor:pointer;padding:4px">✕</button>
+    </div>
+    <!-- Usage Quota Bar -->
+    <div style="padding:11px 16px 10px;border-bottom:1px solid rgba(100,181,246,.12);flex-shrink:0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:.62rem;color:#64b5f6;letter-spacing:.08em;text-transform:uppercase">今日对话额度</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold)" id="aiQuotaText">0 / 50</span>
+      </div>
+      <div style="height:4px;background:rgba(66,165,245,.1);border-radius:2px;overflow:hidden">
+        <div id="aiQuotaBar" style="height:100%;background:linear-gradient(90deg,var(--b4),var(--accent));border-radius:2px;transition:width .4s ease;width:0%"></div>
+      </div>
+      <div style="font-size:.58rem;color:#37474f;margin-top:4px">每日 50 次额度，次日零点重置</div>
+    </div>
+    <!-- Chat Messages -->
+    <div id="aiMessages" style="flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+      <div class="ai-msg ai-msg-bot">
+        <div class="ai-bubble">✦ 你好！我是你的学习助手，有三种方式帮你：</div>
+      </div>
+      <div class="ai-msg ai-msg-bot">
+        <div class="ai-bubble" style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:.9rem">💬</span><span><strong style="color:#e3f2fd">自然语言添加任务</strong><br><span style="opacity:.8">「每天早上8点背单词30分钟」</span></span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:.9rem">🌟</span><span><strong style="color:#e3f2fd">获取鼓励</strong><br><span style="opacity:.8">告诉我你今天做了什么，我来鼓励你</span></span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:.9rem">📋</span><span><strong style="color:#e3f2fd">科学规划建议</strong><br><span style="opacity:.8">描述你的学习目标，我帮你制定计划</span></span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Input Area -->
+    <div style="padding:12px 14px;border-top:1px solid rgba(100,181,246,.15);flex-shrink:0">
+      <div id="aiTypingIndicator" style="font-size:.66rem;color:#546e7a;margin-bottom:6px;font-family:'JetBrains Mono',monospace;display:none">AI 正在思考…</div>
+      <div style="display:flex;gap:7px;align-items:flex-end">
+        <textarea id="aiInput" placeholder="用自然语言描述任务…" rows="2" style="flex:1;resize:none;font-size:.82rem;padding:9px 11px;border-radius:10px;line-height:1.5" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI()}"></textarea>
+        <button class="btn btn-primary btn-sm" onclick="sendAI()" id="aiSendBtn" style="flex-shrink:0;padding:9px 14px">发送</button>
+      </div>
+      <div style="font-size:.58rem;color:#37474f;margin-top:5px">Enter 发送 · Shift+Enter 换行</div>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <button class="ai-quick-btn" onclick="triggerEncourage()">🌟 鼓励我</button>
+        <button class="ai-quick-btn" onclick="triggerPlanAdvice()">📋 学习规划</button>
+        <button class="ai-quick-btn" onclick="triggerReview()">📊 今日复盘</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Countdown Banner -->
   <div id="countdownBanner" class="countdown-banner" style="display:none">
     <div class="cd-icon-wrap"><span id="cdIcon">📝</span></div>
@@ -418,6 +485,7 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
         <div class="fw fw-2"><label class="ilbl">任务名称</label><input id="dName" placeholder="例：物理实验报告" onkeydown="if(event.key==='Enter')addDTask()"></div>
         <div class="fw fw-xs"><label class="ilbl">时长（分钟）</label><input type="number" id="dDur" placeholder="60" min="5" max="480"></div>
         <div class="fw fw-xs"><label class="ilbl">固定时间 <span style="opacity:.6">(选填)</span></label><input type="time" id="dFixed" placeholder="08:00"></div>
+        <div class="fw" style="flex:0 0 90px"><label class="ilbl">重复</label><select id="dRepeat"><option value="none">不重复</option><option value="daily">每天</option><option value="workday">工作日</option><option value="weekly">每周</option></select></div>
         <div class="fw-btn"><button class="btn btn-primary" onclick="addDTask()" style="width:100%;justify-content:center">＋ 添加</button></div>
       </div>
       <div id="schedPrev" style="display:none"></div>
@@ -434,6 +502,12 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
             <button class="btn btn-ghost btn-sm" onclick="addMeal()" style="margin-top:8px">＋ 添加用餐时段</button>
             <div style="font-size:.66rem;color:#64b5f6;margin-top:10px;line-height:1.6">💡 排程会自动避开这些时段；睡觉后/起床前的任务会留到第二天</div>
           </div>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="coll-hdr" onclick="togColl('recurring')"><span class="carr" id="carr-recurring">▶</span><span>循环任务管理</span><span style="font-size:.62rem;color:#546e7a;margin-left:auto;font-family:'JetBrains Mono',monospace" id="recurringCount"></span></div>
+        <div class="cbody" id="cbody-recurring">
+          <div id="recurringList" style="display:flex;flex-direction:column;gap:5px;padding:8px 0"></div>
         </div>
       </div>
       <div style="margin-top:8px">
@@ -598,7 +672,10 @@ const DEFAULT_SHOP=[
   {id:8,icon:'🍕',name:'美食犒劳',cost:100}
 ];
 const STAR_PTS=[0,1,3,5,8,12]; // index = star level (0-5), value = total points for that level
+const REPEAT_LABELS={'none':'不重复','daily':'每天','workday':'工作日','weekly':'每周'};
 let S={pts:0,streak:0,tdPts:0,lastDate:'',dayTasks:[],weekTasks:[],courses:[],ptsHist:[],alertDismissed:false,semStart:'',semTotal:18,rdDays:14,bestPts:0,
+  recurringTasks:[],  // [{id,name,duration,fixedTime,color,repeat:'daily'|'workday'|'weekly',weekDay:0-6}]
+  aiKey:'',           // DeepSeek API key stored locally
   shopItems:null,
   schedule:{
     wakeTime:'07:00',sleepTime:'23:30',
@@ -612,9 +689,43 @@ let timers={},cIdx=0;
 const CLR=['c0','c1','c2','c3','c4','c5','c6','c7'];
 function loadData(){
   const d=gD(CU);
-  if(d){const today=new Date().toDateString();if(d.lastDate!==today){d.dayTasks=[];d.tdPts=0;d.streak=0;d.lastDate=today;d.alertDismissed=false}S={...S,...d}}
-  else S.lastDate=new Date().toDateString();
+  if(d){
+    const today=new Date().toDateString();
+    if(d.lastDate!==today){
+      // New day: reset daily items
+      d.dayTasks=[];d.tdPts=0;d.streak=0;d.lastDate=today;d.alertDismissed=false;
+    }
+    S={...S,...d};
+  } else {
+    S.lastDate=new Date().toDateString();
+  }
   if(!S.shopItems||!S.shopItems.length)S.shopItems=JSON.parse(JSON.stringify(DEFAULT_SHOP));
+  if(!S.recurringTasks)S.recurringTasks=[];
+  injectRecurringTasks();
+}
+
+function injectRecurringTasks(){
+  const now=new Date();
+  const dow=(now.getDay()+6)%7; // Mon=0
+  const isWorkday=dow>=0&&dow<=4;
+  (S.recurringTasks||[]).forEach(rt=>{
+    // Check if already injected today
+    const alreadyIn=S.dayTasks.some(t=>t.recurringId===rt.id);
+    if(alreadyIn)return;
+    // Check repeat rule
+    if(rt.repeat==='daily'){}
+    else if(rt.repeat==='workday'&&!isWorkday)return;
+    else if(rt.repeat==='weekly'&&rt.weekDay!==dow)return;
+    else if(rt.repeat==='none')return;
+    // Inject a fresh copy
+    S.dayTasks.push({
+      id:Date.now()+Math.random(),
+      name:rt.name,duration:rt.duration,
+      startTime:rt.fixedTime||null,fixedTime:rt.fixedTime||null,
+      done:false,elapsed:0,running:false,color:rt.color||'c0',
+      recurringId:rt.id,isRecurring:true,
+    });
+  });
 }
 function saveAll(){if(!CU)return;if(S.pts>S.bestPts)S.bestPts=S.pts;sD(CU,{...S,dayTasks:S.dayTasks.map(t=>({...t,running:false}))})}
 setInterval(saveAll,30000);
@@ -839,16 +950,31 @@ function togWDoneFromDay(id){
 function addDTask(){
   const name=document.getElementById('dName').value.trim(),dur=parseInt(document.getElementById('dDur').value)||60;
   const fixed=document.getElementById('dFixed').value||null;
+  const repeat=document.getElementById('dRepeat').value||'none';
   if(!name){showN('请输入任务名称 ✦');return}
-  S.dayTasks.push({id:Date.now(),name,duration:dur,startTime:fixed,fixedTime:fixed,done:false,elapsed:0,running:false,color:CLR[cIdx++%CLR.length]});
-  document.getElementById('dName').value='';document.getElementById('dDur').value='';document.getElementById('dFixed').value='';
-  renderSchedPrev();renderDTasks();renderTl();showN(fixed?`任务已固定在 ${fixed} ✦`:'任务已添加 · 排程已更新 ✦');saveAll();
+  const color=CLR[cIdx++%CLR.length];
+  const now=new Date();const dow=(now.getDay()+6)%7;
+  // If repeat, also save to recurringTasks
+  if(repeat!=='none'){
+    if(!S.recurringTasks)S.recurringTasks=[];
+    const rid=Date.now()+'r';
+    S.recurringTasks.push({id:rid,name,duration:dur,fixedTime:fixed,color,repeat,weekDay:dow});
+    // Add today's instance with recurringId
+    S.dayTasks.push({id:Date.now(),name,duration:dur,startTime:fixed,fixedTime:fixed,done:false,elapsed:0,running:false,color,recurringId:rid,isRecurring:true});
+    showN(`已设为「${REPEAT_LABELS[repeat]}」循环任务 🔄`);
+  } else {
+    S.dayTasks.push({id:Date.now(),name,duration:dur,startTime:fixed,fixedTime:fixed,done:false,elapsed:0,running:false,color});
+    showN(fixed?`任务已固定在 ${fixed} ✦`:'任务已添加 · 排程已更新 ✦');
+  }
+  document.getElementById('dName').value='';document.getElementById('dDur').value='';
+  document.getElementById('dFixed').value='';document.getElementById('dRepeat').value='none';
+  renderSchedPrev();renderDTasks();renderTl();renderRecurringList();saveAll();
 }
 function renderDTasks(){
   const list=document.getElementById('dTaskList');
   if(!S.dayTasks.length){list.innerHTML='<div class="empty"><div class="ei">🌌</div>添加你的第一个任务，开始今日探索</div>';updDStats();return}
   list.innerHTML=S.dayTasks.map(t=>{const el=t.elapsed+(timers[t.id]?.delta||0),ovr=!t.done&&el>t.duration*60&&el>0;
-    return `<div class="titem ${t.running?'run':''} ${t.done?'done':''} ${ovr?'ovr':''}" id="ti${t.id}"><div class="tchk ${t.done?'chk':''}" onclick="togDone(${t.id})"></div><div class="tinfo"><div class="tn">${t.name}</div><div class="tm">预计${t.duration}min · ${t.startTime||'待排程'}${t.fixedTime?' <span style="color:var(--gold)" title="固定时间">📌</span>':''}${ovr?' · <span style="color:#ff7b7b">超时</span>':''}</div></div><div class="ttimer ${t.running?'':'psd'} ${ovr&&t.running?'ovr':''}">${fmt(el)}</div><div class="tact">${!t.done?`<button class="btn ${t.running?'btn-ghost':'btn-accent'} btn-sm" onclick="togTimer(${t.id})">${t.running?'⏸':'▶'}</button>`:''}<button class="btn btn-ghost btn-icon" onclick="openEdit('day',${t.id})" title="编辑">✎</button><button class="btn btn-danger btn-icon" onclick="remDTask(${t.id})">✕</button></div></div>`;
+    return `<div class="titem ${t.running?'run':''} ${t.done?'done':''} ${ovr?'ovr':''}" id="ti${t.id}"><div class="tchk ${t.done?'chk':''}" onclick="togDone(${t.id})"></div><div class="tinfo"><div class="tn">${t.name}</div><div class="tm">预计${t.duration}min · ${t.startTime||'待排程'}${t.fixedTime?' <span style="color:var(--gold)" title="固定时间">📌</span>':''}${t.isRecurring?' <span style="color:var(--accent)" title="循环任务">🔄</span>':''}${ovr?' · <span style="color:#ff7b7b">超时</span>':''}</div></div><div class="ttimer ${t.running?'':'psd'} ${ovr&&t.running?'ovr':''}">${fmt(el)}</div><div class="tact">${!t.done?`<button class="btn ${t.running?'btn-ghost':'btn-accent'} btn-sm" onclick="togTimer(${t.id})">${t.running?'⏸':'▶'}</button>`:''}<button class="btn btn-ghost btn-icon" onclick="openEdit('day',${t.id})" title="编辑">✎</button><button class="btn btn-danger btn-icon" onclick="remDTask(${t.id})">✕</button></div></div>`;
   }).join('');updDStats();
 }
 function togTimer(id){
@@ -1057,7 +1183,10 @@ function showN(m){const n=document.getElementById('notif');n.textContent=m;n.cla
 function initApp(){
   if(S.semStart)document.getElementById('semStart').value=S.semStart;if(S.semTotal)document.getElementById('semTotal').value=S.semTotal;
   loadScheduleUI();
-  calcCurWeek();renderDTasks();renderSchedPrev();renderTl();renderWGrid();renderWeekDueToday();renderSemBar();renderCourses();updPtsUI();updateShop();checkExams();updateCountdown();autoUploadScore();
+  calcCurWeek();renderDTasks();renderSchedPrev();renderTl();renderWGrid();renderWeekDueToday();
+  renderSemBar();renderCourses();updPtsUI();updateShop();checkExams();updateCountdown();
+  renderRecurringList();autoUploadScore();
+  updateQuotaUI();
 }
 
 /* ── DAILY SCHEDULE CONFIG ── */
@@ -1281,6 +1410,376 @@ function saveEdit(){
 // Close modal on backdrop click
 document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEdit()});
 
+
+/* ── RECURRING TASKS ── */
+function renderRecurringList(){
+  if(!S.recurringTasks)S.recurringTasks=[];
+  const cnt=document.getElementById('recurringCount');
+  const list=document.getElementById('recurringList');
+  if(cnt)cnt.textContent=S.recurringTasks.length?`${S.recurringTasks.length} 项`:'';
+  if(!list)return;
+  if(!S.recurringTasks.length){
+    list.innerHTML='<div style="font-size:.74rem;color:#546e7a;padding:4px 0">暂无循环任务 · 添加任务时选择重复频率即可创建</div>';
+    return;
+  }
+  list.innerHTML=S.recurringTasks.map(rt=>`
+    <div style="display:flex;align-items:center;gap:9px;padding:8px 11px;background:rgba(3,10,28,.5);border-radius:9px;border:1px solid rgba(100,181,246,.16)">
+      <div style="width:8px;height:8px;border-radius:50%;flex-shrink:0" class="${rt.color||'c0'}" style="background:currentColor"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.82rem;color:#e3f2fd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.name}</div>
+        <div style="font-size:.62rem;color:#64b5f6;font-family:'JetBrains Mono',monospace">${REPEAT_LABELS[rt.repeat]||rt.repeat} · ${rt.duration}min${rt.fixedTime?' · 📌'+rt.fixedTime:''}</div>
+      </div>
+      <button class="btn btn-ghost btn-icon" onclick="openEditRecurring(${JSON.stringify(rt.id)})" title="编辑">✎</button>
+      <button class="btn btn-danger btn-icon" onclick="deleteRecurring(${JSON.stringify(rt.id)})" title="删除">✕</button>
+    </div>
+  `).join('');
+}
+
+function deleteRecurring(id){
+  if(!confirm('删除此循环任务？今后不再自动添加（今日已添加的不受影响）'))return;
+  S.recurringTasks=(S.recurringTasks||[]).filter(r=>r.id!==id);
+  renderRecurringList();saveAll();showN('循环任务已删除');
+}
+
+function openEditRecurring(id){
+  const rt=(S.recurringTasks||[]).find(r=>r.id===id);if(!rt)return;
+  // Populate the main add form for editing
+  document.getElementById('dName').value=rt.name;
+  document.getElementById('dDur').value=rt.duration;
+  document.getElementById('dFixed').value=rt.fixedTime||'';
+  document.getElementById('dRepeat').value=rt.repeat;
+  // Remove the old one (save will re-create)
+  S.recurringTasks=S.recurringTasks.filter(r=>r.id!==id);
+  // Also remove today's injected instance
+  S.dayTasks=S.dayTasks.filter(t=>t.recurringId!==id);
+  renderRecurringList();renderDTasks();renderSchedPrev();renderTl();
+  showN('已载入表单，修改后重新添加即可 ✦');
+  // Scroll to form
+  document.getElementById('dName').focus();
+}
+
+/* ── AI CHAT ── */
+const AI_CONFIG = {
+  apiKey: 'sk-8967e79cc8014ccba46c9720c3f27568', 
+  endpoint: 'https://api.deepseek.com/chat/completions',
+  model: 'deepseek-chat',
+  dailyLimit: 50,
+};
+
+let aiOpen = false;
+
+/* ── Quota management ── */
+function getQuotaKey() {
+  return `lp_quota_${CU}_${new Date().toDateString()}`;
+}
+function getUsedToday() {
+  return parseInt(localStorage.getItem(getQuotaKey()) || '0');
+}
+function incrementQuota() {
+  const k = getQuotaKey();
+  localStorage.setItem(k, getUsedToday() + 1);
+  updateQuotaUI();
+}
+function updateQuotaUI() {
+  const used = getUsedToday();
+  const total = AI_CONFIG.dailyLimit;
+  const pct = Math.min(100, used / total * 100);
+  const bar = document.getElementById('aiQuotaBar');
+  const txt = document.getElementById('aiQuotaText');
+  if (!bar || !txt) return;
+  txt.textContent = `${used} / ${total}`;
+  bar.style.width = pct + '%';
+  // Color shift as quota fills
+  if (pct >= 90) bar.style.background = 'linear-gradient(90deg,var(--danger),#ff8a80)';
+  else if (pct >= 70) bar.style.background = 'linear-gradient(90deg,var(--warn),var(--gold))';
+  else bar.style.background = 'linear-gradient(90deg,var(--b4),var(--accent))';
+}
+function hasQuota() {
+  return getUsedToday() < AI_CONFIG.dailyLimit;
+}
+
+/* ── Drawer toggle ── */
+function toggleAI() {
+  aiOpen = !aiOpen;
+  document.getElementById('aiDrawer').style.right = aiOpen ? '0' : '-400px';
+  if (aiOpen) updateQuotaUI();
+}
+
+/* ── Kept for compatibility (no-op now) ── */
+function onKeyInput() {}
+function saveAiKey() {}
+function updateKeyStatus() {}
+function getAiKey() { return AI_CONFIG.apiKey; }
+
+/* ── Message rendering ── */
+function addAiMessage(role, html, actions = []) {
+  const box = document.getElementById('aiMessages');
+  const div = document.createElement('div');
+  div.className = 'ai-msg ai-msg-' + (role === 'user' ? 'user' : 'bot');
+  let chips = actions.length
+    ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px">` +
+      actions.map(a => `<span class="ai-action-chip" onclick="${a.fn}">✦ ${a.label}</span>`).join('') +
+      `</div>`
+    : '';
+  div.innerHTML = `<div class="ai-bubble">${html}</div>${chips}`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+/* ── Core API caller ── */
+async function callDeepSeek(messages, maxTokens = 900) {
+  if (!hasQuota()) {
+    throw new Error(`今日 ${AI_CONFIG.dailyLimit} 次额度已用完，明天再来吧 ✦`);
+  }
+  const resp = await fetch(AI_CONFIG.endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + AI_CONFIG.apiKey,
+    },
+    body: JSON.stringify({
+      model: AI_CONFIG.model,
+      max_tokens: maxTokens,
+      messages,
+    }),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || `HTTP ${resp.status}`);
+  }
+  const data = await resp.json();
+  incrementQuota();
+  return data.choices?.[0]?.message?.content || '';
+}
+
+/* ── Context builder ── */
+function buildContext() {
+  const now = new Date();
+  const dowCN = ['周一','周二','周三','周四','周五','周六','周日'][(now.getDay()+6)%7];
+  const taskList = S.dayTasks.map(t =>
+    `- ${t.name}（${t.duration}min，${t.done ? '✓已完成' : '未完成'}${t.isRecurring ? ' 🔄' : ''}）`
+  ).join('\n') || '（今日暂无任务）';
+  const recurList = (S.recurringTasks || []).map(r =>
+    `- ${r.name}（${REPEAT_LABELS[r.repeat]}，${r.duration}min）`
+  ).join('\n') || '（无）';
+  const doneCnt = S.dayTasks.filter(t => t.done).length;
+  const totalCnt = S.dayTasks.length;
+  const courses = (S.courses || []).map(c => {
+    const mastered = (c.chapters || []).filter(ch => ch && ch.stars >= 3).length;
+    return `- ${c.name}：${mastered}/${c.total}章已掌握${c.examDate ? `，考试${c.examDate}` : ''}`;
+  }).join('\n') || '（无科目）';
+
+  return { now, dowCN, taskList, recurList, doneCnt, totalCnt, courses };
+}
+
+/* ── 1. Chat: task management ── */
+async function sendAI() {
+  const input = document.getElementById('aiInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addAiMessage('user', text);
+
+  const { now, dowCN, taskList, recurList } = buildContext();
+
+  const systemPrompt = `你是 Luminos Planner 的任务助手，帮用户管理学习计划。
+当前：${now.toLocaleString('zh-CN')}，${dowCN}。
+
+今日任务：
+${taskList}
+
+循环任务：
+${recurList}
+
+职责：
+1. 理解自然语言，提取任务信息
+2. 需要操作时，在回复末尾附 JSON（用 \`\`\`json 包裹）
+3. 回答简短友好
+
+操作 JSON 格式：
+{"actions":[{"type":"add_day_task","name":"","duration":60,"fixedTime":"08:00"},
+            {"type":"add_recurring","name":"","duration":60,"fixedTime":null,"repeat":"daily"},
+            {"type":"delete_day_task","taskId":"任务名模糊匹配"},
+            {"type":"delete_recurring","taskId":"循环任务名"}]}
+不需要操作时不附 JSON。`;
+
+  setAiLoading(true);
+  try {
+    const reply = await callDeepSeek([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: text },
+    ]);
+    const actions = parseAndExecuteActions(reply);
+    const textPart = reply.replace(/```json[\s\S]*?```/g, '').trim();
+    addAiMessage('bot', textPart || '✦ 操作已完成', actions);
+  } catch (e) {
+    addAiMessage('bot', `❌ ${e.message}`);
+  } finally {
+    setAiLoading(false);
+  }
+}
+
+/* ── 2. Encourage ── */
+async function triggerEncourage() {
+  const { doneCnt, totalCnt, taskList, courses } = buildContext();
+  const pct = totalCnt ? Math.round(doneCnt / totalCnt * 100) : 0;
+
+  addAiMessage('user', '🌟 帮我鼓励一下');
+  setAiLoading(true);
+  try {
+    const prompt = `你是一个温暖有力量的学习伙伴。根据用户今天的学习情况，给出真诚、生动、有针对性的鼓励（不超过120字）。
+语气：真诚温暖，不能太套话，可以幽默。要结合具体任务内容，让用户感到被看见。
+今日完成情况：${doneCnt}/${totalCnt} 项（${pct}%）
+任务列表：
+${taskList}
+科目进度：
+${courses}
+请直接给出鼓励文字，不要加任何前缀。`;
+
+    const reply = await callDeepSeek([{ role: 'user', content: prompt }], 300);
+    addAiMessage('bot', reply);
+  } catch (e) {
+    addAiMessage('bot', `❌ ${e.message}`);
+  } finally {
+    setAiLoading(false);
+  }
+}
+
+/* ── 3. Study plan advice ── */
+async function triggerPlanAdvice() {
+  const { courses, taskList, doneCnt, totalCnt, dowCN } = buildContext();
+  if (!S.courses || !S.courses.length) {
+    addAiMessage('bot', '💡 你还没有添加学期科目，先去「学期课程」标签添加科目和考试日期，我就能根据你的实际情况给出规划建议了！');
+    return;
+  }
+
+  addAiMessage('user', '📋 帮我制定学习规划');
+  setAiLoading(true);
+  try {
+    // Build exam pressure info
+    const now = new Date();
+    const examInfo = (S.courses || [])
+      .filter(c => c.examDate && !c.done)
+      .map(c => {
+        const days = Math.ceil((new Date(c.examDate) - now) / 86400000);
+        const mastered = (c.chapters || []).filter(ch => ch && ch.stars >= 3).length;
+        return `${c.name}：${days}天后考试，已掌握${mastered}/${c.total}章`;
+      }).join('\n') || '（无近期考试）';
+
+    const prompt = `你是一位经验丰富的学习规划师。根据学生的课程进度和考试安排，给出科学、可执行的学习建议。
+
+当前是${dowCN}。
+
+考试安排与掌握进度：
+${examInfo}
+
+今日完成情况：${doneCnt}/${totalCnt} 项
+
+请给出：
+1. 本周学习优先级排序（最多3条，结合考试紧迫度和掌握薄弱点）
+2. 每日学习时间分配建议（简洁，如"物理1h + 线代45min"）
+3. 一个具体的记忆/复习方法推荐（针对掌握最薄弱的科目）
+
+格式要求：
+- 用中文，语气像导师而非机器人
+- 总字数200字以内
+- 每条建议要具体到科目，不要泛泛而谈`;
+
+    const reply = await callDeepSeek([{ role: 'user', content: prompt }], 500);
+    addAiMessage('bot', reply.replace(/\n/g, '<br>'));
+  } catch (e) {
+    addAiMessage('bot', `❌ ${e.message}`);
+  } finally {
+    setAiLoading(false);
+  }
+}
+
+/* ── 4. Daily review ── */
+async function triggerReview() {
+  const { doneCnt, totalCnt, taskList, courses } = buildContext();
+  addAiMessage('user', '📊 帮我做今日复盘');
+  setAiLoading(true);
+  try {
+    const pct = totalCnt ? Math.round(doneCnt / totalCnt * 100) : 0;
+    const prompt = `你是学习复盘助手，帮用户分析今天的学习表现，给出简洁的复盘报告。
+
+今日数据：
+- 完成任务：${doneCnt}/${totalCnt}（${pct}%）
+- 今日积分：${S.tdPts || 0} pts
+- 任务详情：
+${taskList}
+
+科目掌握进度：
+${courses}
+
+请给出：
+1. 今日一句话总结（15字内，有温度）
+2. 做得好的地方（1条，具体）
+3. 明天可以改进的地方（1条，可执行）
+4. 明天建议优先完成的任务（根据今日未完成情况推断，1-2条）
+
+格式：简洁，每点一行，用 emoji 开头区分，总字数150字以内。`;
+
+    const reply = await callDeepSeek([{ role: 'user', content: prompt }], 400);
+    addAiMessage('bot', reply.replace(/\n/g, '<br>'));
+  } catch (e) {
+    addAiMessage('bot', `❌ ${e.message}`);
+  } finally {
+    setAiLoading(false);
+  }
+}
+
+/* ── Helpers ── */
+function setAiLoading(on) {
+  document.getElementById('aiTypingIndicator').style.display = on ? 'block' : 'none';
+  document.getElementById('aiSendBtn').disabled = on;
+  document.querySelectorAll('.ai-quick-btn').forEach(b => b.disabled = on);
+}
+
+function parseAndExecuteActions(reply) {
+  const match = reply.match(/```json\s*([\s\S]*?)```/);
+  if (!match) return [];
+  const result = [];
+  try {
+    const parsed = JSON.parse(match[1]);
+    (parsed.actions || []).forEach(a => {
+      if (a.type === 'add_day_task') {
+        const color = CLR[cIdx++ % CLR.length];
+        S.dayTasks.push({
+          id: Date.now() + Math.random(), name: a.name, duration: a.duration || 60,
+          startTime: a.fixedTime || null, fixedTime: a.fixedTime || null,
+          done: false, elapsed: 0, running: false, color,
+        });
+        result.push({ label: `已添加「${a.name}」`, fn: 'void(0)' });
+      } else if (a.type === 'add_recurring') {
+        const color = CLR[cIdx++ % CLR.length];
+        const rid = Date.now() + 'r';
+        const dow = (new Date().getDay() + 6) % 7;
+        if (!S.recurringTasks) S.recurringTasks = [];
+        S.recurringTasks.push({ id: rid, name: a.name, duration: a.duration || 60, fixedTime: a.fixedTime || null, color, repeat: a.repeat || 'daily', weekDay: dow });
+        S.dayTasks.push({
+          id: Date.now() + Math.random(), name: a.name, duration: a.duration || 60,
+          startTime: a.fixedTime || null, fixedTime: a.fixedTime || null,
+          done: false, elapsed: 0, running: false, color, recurringId: rid, isRecurring: true,
+        });
+        result.push({ label: `已添加循环「${a.name}」`, fn: 'void(0)' });
+      } else if (a.type === 'delete_day_task' && a.taskId) {
+        const n = a.taskId.toLowerCase();
+        const before = S.dayTasks.length;
+        S.dayTasks = S.dayTasks.filter(t => !t.name.toLowerCase().includes(n));
+        if (before - S.dayTasks.length) result.push({ label: `已删除匹配任务`, fn: 'void(0)' });
+      } else if (a.type === 'delete_recurring' && a.taskId) {
+        const n = a.taskId.toLowerCase();
+        S.recurringTasks = (S.recurringTasks || []).filter(r => !r.name.toLowerCase().includes(n));
+        result.push({ label: `已删除循环任务`, fn: 'void(0)' });
+      }
+    });
+    if (result.length) {
+      renderDTasks(); renderSchedPrev(); renderTl(); renderRecurringList(); saveAll();
+    }
+  } catch (e) { console.warn('AI action parse error', e); }
+  return result;
+}
 
 /* ── AUTO-LOGIN (must run after all functions defined) ── */
 (function(){const s=localStorage.getItem('lp_s');if(s&&gU()[s])loginOK(s)})();
