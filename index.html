@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>蓝境计划 · Luminos Planner</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -603,26 +604,101 @@ var AI_CONFIG = {
 };
 var aiOpen = false;
 
-/* ── AUTH ── */
-var CU=null;
+// ── SUPABASE CONFIG ──
+var SUPA_URL  = 'https://luminos-planner.supabase.co';   // ← 替换
+var SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtdXB3cmZoa2hkZmRheGhkZWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjEwMDQsImV4cCI6MjA5NTUzNzAwNH0.eecOjWvepyd3dhDyce-Thac3BRVx-DQhlm0w1tuzxBI';                       // ← 替换
+var _supa = null;  // supabase client, initialized after SDK loads
+
+function getSupa() {
+  if (!_supa && window.supabase && SUPA_URL !== 'https://YOUR_PROJECT.supabase.co') {
+    _supa = window.supabase.createClient(SUPA_URL, SUPA_ANON);
+  }
+  return _supa;
+}
+
+/* ── AUTH (Supabase) ── */
+var CU = null;   // current username string
+var CU_ID = null; // supabase user id
+
+function slTab(t){
+  document.getElementById('lForm').style.display=t==='login'?'block':'none';
+  document.getElementById('rForm').style.display=t==='reg'?'block':'none';
+  document.getElementById('lt-l').classList.toggle('active',t==='login');
+  document.getElementById('lt-r').classList.toggle('active',t==='reg');
+}
+
+// Supabase uses email — we treat username@luminos.local as the email
+function toEmail(u){ return u.trim().toLowerCase()+'@luminos.local'; }
+
+async function doLogin(){
+  const u=document.getElementById('lU').value.trim();
+  const p=document.getElementById('lP').value;
+  const e=document.getElementById('lErr');
+  if(!u||!p){e.textContent='请填写完整';return;}
+  e.textContent='登录中…';
+  const sb=getSupa();
+  if(!sb){e.textContent='⚠ 服务未配置，使用本地模式';localLogin(u,p);return;}
+  const {data,error}=await sb.auth.signInWithPassword({email:toEmail(u),password:p});
+  if(error){
+    // fallback hint
+    e.textContent=error.message.includes('Invalid')?'用户名或密码错误':error.message;
+    return;
+  }
+  // Store display name in user_metadata if not set
+  const meta=data.user.user_metadata||{};
+  loginOK(meta.username||u, data.user.id);
+}
+
+async function doReg(){
+  const u=document.getElementById('rU').value.trim();
+  const p=document.getElementById('rP').value;
+  const p2=document.getElementById('rP2').value;
+  const e=document.getElementById('rErr');
+  e.textContent='';
+  if(!u||!p){e.textContent='请填写完整';return;}
+  if(u.length<3||u.length>16){e.textContent='用户名需3-16字符';return;}
+  if(p.length<6){e.textContent='密码至少6位';return;}
+  if(p!==p2){e.textContent='两次密码不一致';return;}
+  e.textContent='注册中…';
+  const sb=getSupa();
+  if(!sb){e.textContent='⚠ 服务未配置，使用本地模式';localReg(u,p);return;}
+  const {data,error}=await sb.auth.signUp({
+    email:toEmail(u),
+    password:p,
+    options:{data:{username:u}}
+  });
+  if(error){e.textContent=error.message.includes('already'))?'用户名已被使用':error.message;return;}
+  loginOK(u, data.user.id);
+}
+
+// Local fallback (no Supabase configured)
 function hsh(p){let v=0;for(let i=0;i<p.length;i++)v=(Math.imul(31,v)+p.charCodeAt(i))|0;return v.toString(36)}
-function gU(){return JSON.parse(localStorage.getItem('lp_u')||'{}')}function sU(u){localStorage.setItem('lp_u',JSON.stringify(u))}
-function gD(u){const r=localStorage.getItem('lp_d_'+u);return r?JSON.parse(r):null}function sD(u,d){localStorage.setItem('lp_d_'+u,JSON.stringify(d))}
-function slTab(t){document.getElementById('lForm').style.display=t==='login'?'block':'none';document.getElementById('rForm').style.display=t==='reg'?'block':'none';document.getElementById('lt-l').classList.toggle('active',t==='login');document.getElementById('lt-r').classList.toggle('active',t==='reg')}
-function doLogin(){const u=document.getElementById('lU').value.trim(),p=document.getElementById('lP').value,e=document.getElementById('lErr');if(!u||!p){e.textContent='请填写完整';return}const us=gU();if(!us[u]){e.textContent='用户不存在，请注册';return}if(us[u]!==hsh(p)){e.textContent='密码错误';return}loginOK(u)}
-function doReg(){const u=document.getElementById('rU').value.trim(),p=document.getElementById('rP').value,p2=document.getElementById('rP2').value,e=document.getElementById('rErr');e.textContent='';if(!u||!p){e.textContent='请填写完整';return}if(u.length<3||u.length>16){e.textContent='用户名需3-16字符';return}if(p.length<6){e.textContent='密码至少6位';return}if(p!==p2){e.textContent='两次密码不一致';return}const us=gU();if(us[u]){e.textContent='用户名已被使用';return}us[u]=hsh(p);sU(us);loginOK(u)}
-function loginOK(u){
-  CU=u;localStorage.setItem('lp_s',u);
+function gU(){return JSON.parse(localStorage.getItem('lp_u')||'{}')}
+function sU(u){localStorage.setItem('lp_u',JSON.stringify(u))}
+function gD(u){const r=localStorage.getItem('lp_d_'+u);return r?JSON.parse(r):null}
+function sD(u,d){localStorage.setItem('lp_d_'+u,JSON.stringify(d))}
+function localLogin(u,p){const us=gU();if(!us[u]){document.getElementById('lErr').textContent='用户不存在';return;}if(us[u]!==hsh(p)){document.getElementById('lErr').textContent='密码错误';return;}loginOK(u,null);}
+function localReg(u,p){const us=gU();if(us[u]){document.getElementById('rErr').textContent='用户名已被使用';return;}us[u]=hsh(p);sU(us);loginOK(u,null);}
+function loginOK(u, userId){
+  CU=u; CU_ID=userId||null;
+  localStorage.setItem('lp_s', JSON.stringify({u, id:userId||null}));
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('mainApp').style.display='block';
   document.getElementById('uName').textContent=u;
   document.getElementById('uAv').textContent=u[0].toUpperCase();
-  // Show AI button (it's outside mainApp, starts hidden)
   const aib=document.getElementById('aiToggleBtn');
   if(aib){aib.style.display='flex';}
   loadData();initApp();
 }
-function doLogout(){if(!confirm('确认退出？'))return;saveAll();CU=null;localStorage.removeItem('lp_s');location.reload()}
+function doLogout(){
+  if(!confirm('确认退出？'))return;
+  saveAll();
+  const sb=getSupa();
+  if(sb) sb.auth.signOut();
+  CU=null; CU_ID=null;
+  localStorage.removeItem('lp_s');
+  location.reload();
+}
 // auto-login moved to end of script
 
 /* ── STATE ── */
@@ -652,15 +728,25 @@ var S={pts:0,streak:0,tdPts:0,lastDate:'',dayTasks:[],weekTasks:[],courses:[],pt
   }};
 var timers={},cIdx=0;
 const CLR=['c0','c1','c2','c3','c4','c5','c6','c7'];
-function loadData(){
-  const d=gD(CU);
-  if(d){
+async function loadData(){
+  const sb=getSupa();
+  let payload=null;
+  if(sb && CU_ID){
+    try{
+      const {data,error}=await sb.from('user_data').select('payload').eq('user_id',CU_ID).single();
+      if(!error && data) payload=data.payload;
+    }catch(err){console.warn('Supabase load failed, using localStorage:',err);}
+  }
+  // Fallback to localStorage
+  if(!payload) payload=gD(CU);
+
+  if(payload){
     const today=new Date().toDateString();
-    if(d.lastDate!==today){
-      // New day: reset daily items
-      d.dayTasks=[];d.tdPts=0;d.streak=0;d.lastDate=today;d.alertDismissed=false;
+    if(payload.lastDate!==today){
+      payload.dayTasks=[];payload.tdPts=0;payload.streak=0;
+      payload.lastDate=today;payload.alertDismissed=false;
     }
-    S={...S,...d};
+    S={...S,...payload};
   } else {
     S.lastDate=new Date().toDateString();
   }
@@ -692,7 +778,25 @@ function injectRecurringTasks(){
     });
   });
 }
-function saveAll(){if(!CU)return;if(S.pts>S.bestPts)S.bestPts=S.pts;sD(CU,{...S,dayTasks:S.dayTasks.map(t=>({...t,running:false}))})}
+var _saveTimer2=null;
+function saveAll(){
+  if(!CU)return;
+  if(S.pts>(S.bestPts||0))S.bestPts=S.pts;
+  const payload={...S,dayTasks:S.dayTasks.map(t=>({...t,running:false}))};
+  sD(CU,payload);
+  clearTimeout(_saveTimer2);
+  _saveTimer2=setTimeout(async()=>{
+    const sb=getSupa();
+    if(!sb||!CU_ID)return;
+    try{
+      await sb.from('user_data').upsert({
+        user_id:CU_ID, payload, updated_at:new Date().toISOString()
+      });
+      const best=Math.max(S.pts||0,S.bestPts||0);
+      if(best>0) await sb.rpc('upsert_leaderboard',{p_username:CU,p_score:best});
+    }catch(err){console.warn('Supabase save failed:',err);}
+  },5000);
+}
 setInterval(saveAll,30000);
 
 /* ── STARS ── */
@@ -1061,48 +1165,65 @@ function togCrsExam(id){const c=S.courses.find(c=>c.id===id);if(!c)return;const 
 function checkExams(){if(S.alertDismissed)return;const now=new Date(),rd=parseInt(document.getElementById('rdDays')?.value)||14;const al=(S.courses||[]).filter(c=>{if(!c.examDate||c.done)return false;const d=Math.ceil((new Date(c.examDate)-now)/86400000);return d>=0&&d<=rd});const bn=document.getElementById('examAlertBanner');if(al.length){bn.style.display='block';document.getElementById('alertItems').innerHTML=al.map(c=>{const d=Math.ceil((new Date(c.examDate)-now)/86400000);return `📝 ${c.name} — 距考试 <strong style="color:#ff8a80">${d}</strong> 天，建议每日复习约 ${Math.ceil(60/Math.max(1,d))} 分钟`;}).join('<br>')}else bn.style.display='none'}
 function dismissAlert(){S.alertDismissed=true;document.getElementById('examAlertBanner').style.display='none';setTimeout(()=>{S.alertDismissed=false;checkExams()},3600000)}
 
-/* ── LEADERBOARD (Anthropic persistent storage via artifact API) ── */
-async function uploadScore(){
-  if(!CU){showN('请先登录');return}
-  if(S.pts<=0){showN('积分为0，暂无法上榜');return}
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,messages:[{role:'user',content:`Store leaderboard score. User: ${CU}, Score: ${S.pts}. Reply only: OK`}]})});
-    // Since we can't use persistent storage directly from HTML,
-    // we store in a shared localStorage key that all users of the same device see,
-    // and use a simulated shared board via localStorage with a broadcast pattern
-    const lb=getSharedLB();lb[CU]={pts:S.pts,ts:Date.now()};setSharedLB(lb);
-    showN(`积分已上传到本地排行榜 ✦`);loadLB();
-  }catch{
-    const lb=getSharedLB();lb[CU]={pts:S.pts,ts:Date.now()};setSharedLB(lb);showN('积分已记录到本设备排行榜 ✦');loadLB();
-  }
-}
-// Shared LB uses a localStorage key visible to all users on the same browser
+/* ── LEADERBOARD (Supabase) ── */
 function getSharedLB(){return JSON.parse(localStorage.getItem('lp_lb')||'{}')}
 function setSharedLB(d){localStorage.setItem('lp_lb',JSON.stringify(d))}
-// Also auto-upload current user score on load
-function autoUploadScore(){if(!CU||S.pts<=0)return;const lb=getSharedLB();if(!lb[CU]||lb[CU].pts<S.pts){lb[CU]={pts:S.pts,ts:Date.now()};setSharedLB(lb)}}
 
-function loadLB(){
-  autoUploadScore();
-  const lb=getSharedLB();
-  const entries=Object.entries(lb).map(([name,d])=>({name,pts:d.pts,ts:d.ts})).sort((a,b)=>b.pts-a.pts);
+async function loadLB(){
   const el=document.getElementById('lbContent');
-  if(!entries.length){el.innerHTML='<div class="empty"><div class="ei">🏆</div>暂无排行数据<br><small style="font-size:.68rem;color:#546e7a">点击下方「上传积分」加入榜单</small></div>';return}
+  el.innerHTML='<div class="empty"><div class="ei">🏆</div>加载中…</div>';
+  const sb=getSupa();
+  if(!sb){
+    // Local fallback
+    const lb=getSharedLB();
+    const entries=Object.entries(lb).map(([name,d])=>({username:name,score:d.pts})).sort((a,b)=>b.score-a.score);
+    renderLBEntries(entries,el);
+    return;
+  }
+  try{
+    const {data,error}=await sb.from('leaderboard')
+      .select('username,score')
+      .order('score',{ascending:false})
+      .limit(50);
+    if(error)throw error;
+    renderLBEntries(data,el);
+  }catch(err){
+    el.innerHTML=`<div class="empty"><div class="ei">⚠️</div>${err.message}</div>`;
+  }
+}
+
+function renderLBEntries(data,el){
   const rankEmojis=['🥇','🥈','🥉'];
   const rankCls=['gold-rank','silver-rank','bronze-rank'];
-  el.innerHTML=entries.map((e,i)=>{
-    const isMe=e.name===CU;const rank=i+1;
-    return `<div class="lb-row ${isMe?'me':''}">
-      <div class="lb-rank ${rankCls[i]||''}">${rankEmojis[i]||rank}</div>
-      <div class="lb-avatar">${e.name[0].toUpperCase()}</div>
-      <div class="lb-name">${e.name}${isMe?' <span class="lb-badge">我</span>':''}</div>
-      <div class="lb-pts">${e.pts.toLocaleString()} <span style="font-size:.62rem;opacity:.6">pts</span></div>
-    </div>`;
-  }).join('');
-  // My rank
-  const myIdx=entries.findIndex(e=>e.name===CU);
-  document.getElementById('myBest').textContent=(S.bestPts||S.pts).toLocaleString();
-  document.getElementById('myRankTxt').textContent=myIdx>=0?`当前排名第 ${myIdx+1} / ${entries.length} 位`:'点击上传积分加入排行榜';
+  el.innerHTML=data.length
+    ?data.map((e,i)=>{
+      const isMe=e.username===CU;
+      return `<div class="lb-row ${isMe?'me':''}">
+        <div class="lb-rank ${rankCls[i]||''}">${rankEmojis[i]||i+1}</div>
+        <div class="lb-avatar">${(e.username||'?')[0].toUpperCase()}</div>
+        <div class="lb-name">${e.username}${isMe?' <span class="lb-badge">我</span>':''}</div>
+        <div class="lb-pts">${(e.score||0).toLocaleString()} <span style="font-size:.62rem;opacity:.6">pts</span></div>
+      </div>`;}).join('')
+    :'<div class="empty"><div class="ei">🏆</div>暂无数据</div>';
+  const myIdx=data.findIndex(e=>e.username===CU);
+  const myBest=document.getElementById('myBest');
+  const myRank=document.getElementById('myRankTxt');
+  if(myBest)myBest.textContent=(S.bestPts||S.pts||0).toLocaleString();
+  if(myRank)myRank.textContent=myIdx>=0?`当前排名第 ${myIdx+1} / ${data.length} 位`:'暂未上榜';
+}
+
+async function uploadScore(){
+  // Auto-save handles Supabase sync; this just triggers a refresh
+  saveAll();
+  showN('积分同步中… ✦');
+  setTimeout(loadLB,2500);
+}
+
+function autoUploadScore(){
+  // Called on init: update local LB and queue Supabase sync
+  if(!CU||S.pts<=0)return;
+  const lb=getSharedLB();
+  if(!lb[CU]||lb[CU].pts<S.pts){lb[CU]={pts:S.pts,ts:Date.now()};setSharedLB(lb);}
 }
 
 /* ── POINTS ── */
@@ -1743,7 +1864,31 @@ function parseAndExecuteActions(reply) {
 }
 
 /* ── AUTO-LOGIN (must run after all functions defined) ── */
-(function(){const s=localStorage.getItem('lp_s');if(s&&gU()[s])loginOK(s)})();
+(async function(){
+  // Try Supabase session first
+  const sb=getSupa();
+  if(sb){
+    const {data:{session}}=await sb.auth.getSession();
+    if(session){
+      const meta=session.user.user_metadata||{};
+      const username=meta.username||session.user.email.split('@')[0];
+      loginOK(username, session.user.id);
+      return;
+    }
+  }
+  // Fallback: local session
+  const raw=localStorage.getItem('lp_s');
+  if(!raw)return;
+  try{
+    const obj=JSON.parse(raw);
+    if(obj&&obj.u){loginOK(obj.u, obj.id||null);return;}
+  }catch{}
+  // Legacy: plain string
+  if(typeof raw==='string' && raw.length>0){
+    const us=gU();
+    if(us[raw]) loginOK(raw,null);
+  }
+})();
 
 </script>
 
