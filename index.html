@@ -402,60 +402,6 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
       <button class="btn btn-ghost btn-sm" onclick="dismissAlert()" style="flex-shrink:0;align-self:flex-start">知道了</button>
     </div>
   </div>
-  <!-- AI Chat Toggle -->
-  <button id="aiToggleBtn" onclick="toggleAI()" style="position:fixed;bottom:24px;right:24px;z-index:300;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--b4),var(--accent2));border:none;cursor:pointer;box-shadow:0 4px 20px rgba(124,77,255,.45);display:flex;align-items:center;justify-content:center;font-size:1.4rem;transition:all .3s" title="AI 助手">🤖</button>
-
-  <!-- AI Chat Drawer -->
-  <div id="aiDrawer" style="position:fixed;right:-400px;top:0;bottom:0;width:380px;max-width:100vw;z-index:250;background:rgba(4,12,30,.97);border-left:1px solid rgba(100,181,246,.25);backdrop-filter:blur(20px);transition:right .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,.4)">
-    <!-- Drawer Header -->
-    <div style="padding:18px 18px 14px;border-bottom:1px solid rgba(100,181,246,.18);display:flex;align-items:center;gap:10px;flex-shrink:0">
-      <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--b4),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem">🤖</div>
-      <div style="flex:1">
-        <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:#bbdefb">DeepSeek 助手</div>
-        <div style="font-size:.62rem;color:#546e7a;font-family:'JetBrains Mono',monospace">用自然语言添加/管理任务</div>
-      </div>
-      <button onclick="toggleAI()" style="background:none;border:none;color:#546e7a;font-size:1.2rem;cursor:pointer;padding:4px">✕</button>
-    </div>
-    <!-- Usage Quota Bar -->
-    <div style="padding:11px 16px 10px;border-bottom:1px solid rgba(100,181,246,.12);flex-shrink:0">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-        <span style="font-size:.62rem;color:#64b5f6;letter-spacing:.08em;text-transform:uppercase">今日对话额度</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold)" id="aiQuotaText">0 / 50</span>
-      </div>
-      <div style="height:4px;background:rgba(66,165,245,.1);border-radius:2px;overflow:hidden">
-        <div id="aiQuotaBar" style="height:100%;background:linear-gradient(90deg,var(--b4),var(--accent));border-radius:2px;transition:width .4s ease;width:0%"></div>
-      </div>
-      <div style="font-size:.58rem;color:#37474f;margin-top:4px">每日 50 次额度，次日零点重置</div>
-    </div>
-    <!-- Chat Messages -->
-    <div id="aiMessages" style="flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
-      <div class="ai-msg ai-msg-bot">
-        <div class="ai-bubble">✦ 你好！我是你的学习助手，有三种方式帮你：</div>
-      </div>
-      <div class="ai-msg ai-msg-bot">
-        <div class="ai-bubble" style="display:flex;flex-direction:column;gap:7px">
-          <div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:.9rem">💬</span><span><strong style="color:#e3f2fd">自然语言添加任务</strong><br><span style="opacity:.8">「每天早上8点背单词30分钟」</span></span></div>
-          <div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:.9rem">🌟</span><span><strong style="color:#e3f2fd">获取鼓励</strong><br><span style="opacity:.8">告诉我你今天做了什么，我来鼓励你</span></span></div>
-          <div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:.9rem">📋</span><span><strong style="color:#e3f2fd">科学规划建议</strong><br><span style="opacity:.8">描述你的学习目标，我帮你制定计划</span></span></div>
-        </div>
-      </div>
-    </div>
-    <!-- Input Area -->
-    <div style="padding:12px 14px;border-top:1px solid rgba(100,181,246,.15);flex-shrink:0">
-      <div id="aiTypingIndicator" style="font-size:.66rem;color:#546e7a;margin-bottom:6px;font-family:'JetBrains Mono',monospace;display:none">AI 正在思考…</div>
-      <div style="display:flex;gap:7px;align-items:flex-end">
-        <textarea id="aiInput" placeholder="用自然语言描述任务…" rows="2" style="flex:1;resize:none;font-size:.82rem;padding:9px 11px;border-radius:10px;line-height:1.5" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI()}"></textarea>
-        <button class="btn btn-primary btn-sm" onclick="sendAI()" id="aiSendBtn" style="flex-shrink:0;padding:9px 14px">发送</button>
-      </div>
-      <div style="font-size:.58rem;color:#37474f;margin-top:5px">Enter 发送 · Shift+Enter 换行</div>
-      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-        <button class="ai-quick-btn" onclick="triggerEncourage()">🌟 鼓励我</button>
-        <button class="ai-quick-btn" onclick="triggerPlanAdvice()">📋 学习规划</button>
-        <button class="ai-quick-btn" onclick="triggerReview()">📊 今日复盘</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Countdown Banner -->
   <div id="countdownBanner" class="countdown-banner" style="display:none">
     <div class="cd-icon-wrap"><span id="cdIcon">📝</span></div>
@@ -648,15 +594,34 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
 </div>
 
 <script>
+// ── AI CONFIG (declared first so always available) ──
+var AI_CONFIG = {
+  // API key is stored in Cloudflare Worker env var (not exposed to frontend)
+  endpoint: 'https://luminos-planner.chocococ010101.workers.dev',
+  model: 'deepseek-chat',
+  dailyLimit: 50,
+};
+var aiOpen = false;
+
 /* ── AUTH ── */
-let CU=null;
+var CU=null;
 function hsh(p){let v=0;for(let i=0;i<p.length;i++)v=(Math.imul(31,v)+p.charCodeAt(i))|0;return v.toString(36)}
 function gU(){return JSON.parse(localStorage.getItem('lp_u')||'{}')}function sU(u){localStorage.setItem('lp_u',JSON.stringify(u))}
 function gD(u){const r=localStorage.getItem('lp_d_'+u);return r?JSON.parse(r):null}function sD(u,d){localStorage.setItem('lp_d_'+u,JSON.stringify(d))}
 function slTab(t){document.getElementById('lForm').style.display=t==='login'?'block':'none';document.getElementById('rForm').style.display=t==='reg'?'block':'none';document.getElementById('lt-l').classList.toggle('active',t==='login');document.getElementById('lt-r').classList.toggle('active',t==='reg')}
 function doLogin(){const u=document.getElementById('lU').value.trim(),p=document.getElementById('lP').value,e=document.getElementById('lErr');if(!u||!p){e.textContent='请填写完整';return}const us=gU();if(!us[u]){e.textContent='用户不存在，请注册';return}if(us[u]!==hsh(p)){e.textContent='密码错误';return}loginOK(u)}
 function doReg(){const u=document.getElementById('rU').value.trim(),p=document.getElementById('rP').value,p2=document.getElementById('rP2').value,e=document.getElementById('rErr');e.textContent='';if(!u||!p){e.textContent='请填写完整';return}if(u.length<3||u.length>16){e.textContent='用户名需3-16字符';return}if(p.length<6){e.textContent='密码至少6位';return}if(p!==p2){e.textContent='两次密码不一致';return}const us=gU();if(us[u]){e.textContent='用户名已被使用';return}us[u]=hsh(p);sU(us);loginOK(u)}
-function loginOK(u){CU=u;localStorage.setItem('lp_s',u);document.getElementById('loginScreen').style.display='none';document.getElementById('mainApp').style.display='block';document.getElementById('uName').textContent=u;document.getElementById('uAv').textContent=u[0].toUpperCase();loadData();initApp()}
+function loginOK(u){
+  CU=u;localStorage.setItem('lp_s',u);
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  document.getElementById('uName').textContent=u;
+  document.getElementById('uAv').textContent=u[0].toUpperCase();
+  // Show AI button (it's outside mainApp, starts hidden)
+  const aib=document.getElementById('aiToggleBtn');
+  if(aib){aib.style.display='flex';}
+  loadData();initApp();
+}
 function doLogout(){if(!confirm('确认退出？'))return;saveAll();CU=null;localStorage.removeItem('lp_s');location.reload()}
 // auto-login moved to end of script
 
@@ -673,7 +638,7 @@ const DEFAULT_SHOP=[
 ];
 const STAR_PTS=[0,1,3,5,8,12]; // index = star level (0-5), value = total points for that level
 const REPEAT_LABELS={'none':'不重复','daily':'每天','workday':'工作日','weekly':'每周'};
-let S={pts:0,streak:0,tdPts:0,lastDate:'',dayTasks:[],weekTasks:[],courses:[],ptsHist:[],alertDismissed:false,semStart:'',semTotal:18,rdDays:14,bestPts:0,
+var S={pts:0,streak:0,tdPts:0,lastDate:'',dayTasks:[],weekTasks:[],courses:[],ptsHist:[],alertDismissed:false,semStart:'',semTotal:18,rdDays:14,bestPts:0,
   recurringTasks:[],  // [{id,name,duration,fixedTime,color,repeat:'daily'|'workday'|'weekly',weekDay:0-6}]
   aiKey:'',           // DeepSeek API key stored locally
   shopItems:null,
@@ -685,7 +650,7 @@ let S={pts:0,streak:0,tdPts:0,lastDate:'',dayTasks:[],weekTasks:[],courses:[],pt
       {name:'晚餐',start:'18:00',duration:60}
     ]
   }};
-let timers={},cIdx=0;
+var timers={},cIdx=0;
 const CLR=['c0','c1','c2','c3','c4','c5','c6','c7'];
 function loadData(){
   const d=gD(CU);
@@ -1272,7 +1237,7 @@ function saveCourseEdit(){
   renderCourses();renderSemBar();checkExams();updateCountdown();updPtsUI();updateShop();saveAll();
   closeCourseEdit();showN('科目已更新 ✦');
 }
-document.getElementById('editCourseModal').addEventListener('click',function(e){if(e.target===this)closeCourseEdit()});
+document.getElementById('editCourseModal')?.addEventListener('click',function(e){if(e.target===this)closeCourseEdit()});
 
 /* ── SHOP ITEM EDIT ── */
 let editingShopId=null;
@@ -1325,7 +1290,7 @@ function resetShop(){
   S.shopItems=JSON.parse(JSON.stringify(DEFAULT_SHOP));
   updateShop();saveAll();showN('已恢复默认商品');
 }
-document.getElementById('editShopModal').addEventListener('click',function(e){if(e.target===this)closeShopEdit()});
+document.getElementById('editShopModal')?.addEventListener('click',function(e){if(e.target===this)closeShopEdit()});
 
 /* ── EXAM COUNTDOWN (top banner) ── */
 function updateCountdown(){
@@ -1408,7 +1373,7 @@ function saveEdit(){
   saveAll();closeEdit();showN('任务已更新 ✦');
 }
 // Close modal on backdrop click
-document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEdit()});
+document.getElementById('editModal')?.addEventListener('click',function(e){if(e.target===this)closeEdit()});
 
 
 /* ── RECURRING TASKS ── */
@@ -1459,14 +1424,7 @@ function openEditRecurring(id){
 }
 
 /* ── AI CHAT ── */
-const AI_CONFIG = {
-  apiKey: 'sk-8967e79cc8014ccba46c9720c3f27568', 
-  endpoint: 'https://api.deepseek.com/chat/completions',
-  model: 'deepseek-chat',
-  dailyLimit: 50,
-};
-
-let aiOpen = false;
+// AI_CONFIG and aiOpen declared at top of script
 
 /* ── Quota management ── */
 function getQuotaKey() {
@@ -1482,7 +1440,7 @@ function incrementQuota() {
 }
 function updateQuotaUI() {
   const used = getUsedToday();
-  const total = AI_CONFIG.dailyLimit;
+  const total = (AI_CONFIG && AI_CONFIG.dailyLimit) || 50;
   const pct = Math.min(100, used / total * 100);
   const bar = document.getElementById('aiQuotaBar');
   const txt = document.getElementById('aiQuotaText');
@@ -1495,13 +1453,13 @@ function updateQuotaUI() {
   else bar.style.background = 'linear-gradient(90deg,var(--b4),var(--accent))';
 }
 function hasQuota() {
-  return getUsedToday() < AI_CONFIG.dailyLimit;
+  return getUsedToday() < ((AI_CONFIG && AI_CONFIG.dailyLimit) || 50);
 }
 
 /* ── Drawer toggle ── */
 function toggleAI() {
   aiOpen = !aiOpen;
-  document.getElementById('aiDrawer').style.right = aiOpen ? '0' : '-400px';
+  document.getElementById('aiDrawer').style.right = aiOpen ? '0' : '-420px';
   if (aiOpen) updateQuotaUI();
 }
 
@@ -1528,17 +1486,20 @@ function addAiMessage(role, html, actions = []) {
 
 /* ── Core API caller ── */
 async function callDeepSeek(messages, maxTokens = 900) {
+  const _cfg = AI_CONFIG || {};
+  const _limit = (_cfg.dailyLimit) || 50;
   if (!hasQuota()) {
-    throw new Error(`今日 ${AI_CONFIG.dailyLimit} 次额度已用完，明天再来吧 ✦`);
+    throw new Error(`今日 ${_limit} 次额度已用完，明天再来吧 ✦`);
   }
-  const resp = await fetch(AI_CONFIG.endpoint, {
+  const cfg = AI_CONFIG || {};
+  const resp = await fetch(cfg.endpoint || 'https://api.deepseek.com/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + AI_CONFIG.apiKey,
+      // Authorization handled by Cloudflare Worker proxy
     },
     body: JSON.stringify({
-      model: AI_CONFIG.model,
+      model: cfg.model || 'deepseek-chat',
       max_tokens: maxTokens,
       messages,
     }),
@@ -1848,5 +1809,60 @@ function parseAndExecuteActions(reply) {
     </div>
   </div>
 </div>
+
+<!-- AI Chat Toggle (outside mainApp so it's always visible after login) -->
+<button id="aiToggleBtn" onclick="toggleAI()" style="display:none;position:fixed;bottom:24px;right:24px;z-index:300;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--b4),var(--accent2));border:none;cursor:pointer;box-shadow:0 4px 20px rgba(124,77,255,.45);align-items:center;justify-content:center;font-size:1.4rem;transition:all .3s" title="AI 助手 · DeepSeek">🤖</button>
+
+<!-- AI Chat Drawer -->
+<div id="aiDrawer" style="position:fixed;right:-420px;top:0;bottom:0;width:380px;max-width:100vw;z-index:250;background:rgba(4,12,30,.97);border-left:1px solid rgba(100,181,246,.25);backdrop-filter:blur(20px);transition:right .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,.4)">
+  <!-- Drawer Header -->
+  <div style="padding:18px 18px 14px;border-bottom:1px solid rgba(100,181,246,.18);display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--b4),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem">🤖</div>
+    <div style="flex:1">
+      <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:#bbdefb">DeepSeek 助手</div>
+      <div style="font-size:.62rem;color:#546e7a;font-family:'JetBrains Mono',monospace">用自然语言添加/管理任务</div>
+    </div>
+    <button onclick="toggleAI()" style="background:none;border:none;color:#546e7a;font-size:1.2rem;cursor:pointer;padding:4px">✕</button>
+  </div>
+  <!-- Usage Quota Bar -->
+  <div style="padding:11px 16px 10px;border-bottom:1px solid rgba(100,181,246,.12);flex-shrink:0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+      <span style="font-size:.62rem;color:#64b5f6;letter-spacing:.08em;text-transform:uppercase">今日对话额度</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold)" id="aiQuotaText">0 / 50</span>
+    </div>
+    <div style="height:4px;background:rgba(66,165,245,.1);border-radius:2px;overflow:hidden">
+      <div id="aiQuotaBar" style="height:100%;background:linear-gradient(90deg,var(--b4),var(--accent));border-radius:2px;transition:width .4s ease;width:0%"></div>
+    </div>
+    <div style="font-size:.58rem;color:#37474f;margin-top:4px">每日 50 次额度，次日零点重置</div>
+  </div>
+  <!-- Chat Messages -->
+  <div id="aiMessages" style="flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+    <div class="ai-msg ai-msg-bot">
+      <div class="ai-bubble">✦ 你好！我是你的学习助手，有三种方式帮你：</div>
+    </div>
+    <div class="ai-msg ai-msg-bot">
+      <div class="ai-bubble" style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:.9rem">💬</span><span><strong style="color:#e3f2fd">自然语言添加任务</strong><br><span style="opacity:.8">「每天早上8点背单词30分钟」</span></span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:.9rem">🌟</span><span><strong style="color:#e3f2fd">获取鼓励</strong><br><span style="opacity:.8">告诉我你今天做了什么，我来鼓励你</span></span></div>
+        <div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:.9rem">📋</span><span><strong style="color:#e3f2fd">科学规划建议</strong><br><span style="opacity:.8">描述你的学习目标，我帮你制定计划</span></span></div>
+      </div>
+    </div>
+  </div>
+  <!-- Input Area -->
+  <div style="padding:12px 14px;border-top:1px solid rgba(100,181,246,.15);flex-shrink:0">
+    <div id="aiTypingIndicator" style="font-size:.66rem;color:#546e7a;margin-bottom:6px;font-family:'JetBrains Mono',monospace;display:none">AI 正在思考…</div>
+    <div style="display:flex;gap:7px;align-items:flex-end">
+      <textarea id="aiInput" placeholder="用自然语言描述任务…" rows="2" style="flex:1;resize:none;font-size:.82rem;padding:9px 11px;border-radius:10px;line-height:1.5" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI()}"></textarea>
+      <button class="btn btn-primary btn-sm" onclick="sendAI()" id="aiSendBtn" style="flex-shrink:0;padding:9px 14px">发送</button>
+    </div>
+    <div style="font-size:.58rem;color:#37474f;margin-top:5px">Enter 发送 · Shift+Enter 换行</div>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+      <button class="ai-quick-btn" onclick="triggerEncourage()">🌟 鼓励我</button>
+      <button class="ai-quick-btn" onclick="triggerPlanAdvice()">📋 学习规划</button>
+      <button class="ai-quick-btn" onclick="triggerReview()">📊 今日复盘</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
