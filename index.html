@@ -705,15 +705,15 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
 // ── AI CONFIG (declared first so always available) ──
 var AI_CONFIG = {
   // API key is stored in Cloudflare Worker env var (not exposed to frontend)
-  endpoint: 'https://YOUR_PROJECT.supabase.co/functions/v1/ai-proxy',  // ← Supabase Edge Function
+  endpoint: 'https://tmupwrfhkhdfdaxhdeaj.supabase.co/functions/v1/ai-proxy',  // ← Supabase Edge Function
   model: 'deepseek-chat',
   dailyLimit: 50,
 };
 var aiOpen = false;
 
 // ── SUPABASE CONFIG ──
-var SUPA_URL  = 'https://YOUR_PROJECT.supabase.co';   // ← 替换
-var SUPA_ANON = 'YOUR_ANON_KEY';                       // ← 替换
+var SUPA_URL  = 'https://tmupwrfhkhdfdaxhdeaj.supabase.co';   // ← 替换
+var SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtdXB3cmZoa2hkZmRheGhkZWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjEwMDQsImV4cCI6MjA5NTUzNzAwNH0.eecOjWvepyd3dhDyce-Thac3BRVx-DQhlm0w1tuzxBI';                       // ← 替换
 var _supa = null;  // supabase client, initialized after SDK loads
 
 function getSupa() {
