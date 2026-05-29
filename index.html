@@ -353,7 +353,113 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
 .pf0{background:linear-gradient(90deg,#1565c0,#42a5f5)}.pf1{background:linear-gradient(90deg,#6a1b9a,#ab47bc)}.pf2{background:linear-gradient(90deg,#00695c,#26a69a)}
 .pf3{background:linear-gradient(90deg,#b71c1c,#ef5350)}.pf4{background:linear-gradient(90deg,#e65100,#ffa726)}.pf5{background:linear-gradient(90deg,#1b5e20,#66bb6a)}
 .pf6{background:linear-gradient(90deg,#01579b,#29b6f6)}.pf7{background:linear-gradient(90deg,#4a148c,#9c27b0)}
-@media(max-width:700px){.tgrid{grid-template-columns:1fr}.wgrid{grid-template-columns:repeat(4,1fr)}}
+
+/* ═══ RESPONSIVE: Tablet (≤900px) ═══ */
+@media(max-width:900px){
+  .app{padding:0 14px 80px}
+  .cgrid{grid-template-columns:1fr}
+  .sem-cfg{grid-template-columns:repeat(2,1fr)}
+  .shgrid{grid-template-columns:repeat(3,1fr)}
+}
+
+/* ═══ RESPONSIVE: Mobile & iPad portrait (≤700px) ═══ */
+@media(max-width:700px){
+  /* Layout */
+  .app{padding:0 12px 80px}
+  .tgrid{grid-template-columns:1fr}
+  .wgrid{grid-template-columns:repeat(4,1fr)}
+
+  /* Header */
+  header{flex-wrap:wrap;gap:10px;padding:18px 0 14px}
+  .logo-main{font-size:1.5rem}
+  .logo-sub{font-size:.52rem}
+  .pval{font-size:1.5rem}
+  .hright{gap:3px}
+  .upill{font-size:.7rem;padding:4px 10px 4px 6px}
+
+  /* Nav tabs */
+  .nav-tabs{gap:2px;padding:4px;margin-top:14px;flex-wrap:wrap}
+  .nav-tab{font-size:.72rem;padding:8px 4px;border-radius:9px;flex:1 1 auto;min-width:60px}
+  .nav-tab.active::after{display:none}
+
+  /* Cards */
+  .card{padding:15px 13px;border-radius:14px}
+  .card-title{font-size:.92rem;margin-bottom:11px}
+
+  /* Form rows — stack vertically on mobile */
+  .frow{flex-direction:column;gap:8px}
+  .fw,.fw-2,.fw-1,.fw-sm,.fw-xs{min-width:0;width:100%;flex:none}
+  .fw-btn{width:100%}
+  .fw-btn .btn{width:100%;justify-content:center}
+
+  /* Task items */
+  .titem{padding:10px 11px;gap:8px}
+  .tn{font-size:.82rem}
+  .tm{font-size:.6rem}
+  .ttimer{font-size:.85rem;min-width:46px}
+  .tact{gap:3px}
+
+  /* Stats grid */
+  .sgrid{grid-template-columns:repeat(3,1fr);gap:6px}
+  .sv{font-size:1.2rem}
+  .sl{font-size:.55rem}
+
+  /* Week grid — 2 columns on small phones */
+  .wgrid{grid-template-columns:repeat(2,1fr);gap:5px}
+  .wday{min-height:100px;padding:8px 5px}
+  .wdd{font-size:.9rem}
+  .wdh{font-size:.55rem}
+
+  /* Course cards */
+  .cgrid{grid-template-columns:1fr}
+  .cname{font-size:.88rem}
+
+  /* Countdown banner */
+  .countdown-banner{padding:10px 13px;gap:10px}
+  .cd-icon-wrap{width:36px;height:36px;font-size:1.2rem}
+  .cd-days{font-size:1.6rem}
+  .cd-label{font-size:.5rem}
+  .cd-line1{font-size:.82rem}
+
+  /* AI drawer full-screen on mobile */
+  #aiDrawer{width:100vw;max-width:100vw}
+  #aiToggleBtn{width:46px;height:46px;font-size:1.2rem;bottom:18px;right:14px}
+
+  /* Shop */
+  .shgrid{grid-template-columns:repeat(2,1fr)}
+  .shi{padding:10px}
+  .shi-icon{font-size:1.4rem;margin-bottom:4px}
+  .shi-name{font-size:.76rem}
+  .shi-cost{font-size:.68rem}
+
+  /* Leaderboard */
+  .lb-row{padding:8px 10px;gap:8px}
+  .lb-name{font-size:.78rem}
+  .lb-pts{font-size:.78rem}
+
+  /* Semester bar — label every 2 weeks */
+  .semwlbl{font-size:.45rem}
+  .ms-dot{width:22px;height:22px;font-size:.7rem}
+  .ms-lbl{font-size:.46rem;max-width:50px}
+
+  /* Collapsible header */
+  .coll-hdr{font-size:.74rem;padding:8px 10px}
+
+  /* Schedule preview */
+  .sched-slot{font-size:.7rem;gap:6px}
+  .slt{min-width:42px;font-size:.64rem}
+
+  /* Timeline */
+  .tl-axis{height:58px}
+  .tl-lbl{font-size:.42rem}
+}
+
+/* ═══ RESPONSIVE: Small phone (≤380px) ═══ */
+@media(max-width:380px){
+  .nav-tab{font-size:.65rem;padding:7px 3px}
+  .wgrid{grid-template-columns:repeat(2,1fr)}
+  .sgrid{grid-template-columns:repeat(3,1fr)}
+}
 </style>
 </head>
 <body>
@@ -383,7 +489,7 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
       <button class="lbtn" onclick="doReg()">创 建 账 户</button>
       <div class="lerr" id="rErr"></div>
     </div>
-    <div class="lfooter">📦 数据存于本地浏览器 · 多账户独立隔离</div>
+    <div class="lfooter">☁️ 数据云端同步 · 多设备通用 · 密码加密存储</div>
   </div>
 </div>
 
@@ -478,6 +584,7 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
               <div style="text-align:center;padding:6px 4px;background:rgba(3,10,28,.55);border-radius:6px;border:1px solid rgba(100,181,246,.14)"><div style="font-size:.62rem;color:#90caf9">⭐⭐⭐⭐⭐大师</div><div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--gold);margin-top:2px">+12</div></div>
             </div>
             <div style="font-size:.62rem;color:#546e7a;margin-top:6px">* 升级累加差值，降级会扣回</div>
+            <div style="margin-top:8px;padding:6px 10px;background:rgba(255,82,82,.06);border-radius:7px;border:1px solid rgba(255,82,82,.18);font-size:.7rem;color:#ef9a9a">⚠️ 昨日未完成任务每项扣 3 pts，请认真对待每个计划</div>
           </div>
         </div>
       </div>
@@ -520,7 +627,7 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
         <div class="fw fw-sm"><label class="ilbl">优先级</label><select id="wPri"><option value="high">🔴 高</option><option value="medium" selected>🟡 中</option><option value="low">🟢 低</option></select></div>
         <div class="fw-btn"><button class="btn btn-primary" onclick="addWTask()" style="width:100%;justify-content:center">＋ 添加</button></div>
       </div>
-      <div style="margin-top:8px;font-size:.7rem;color:#64b5f6">💡 系统将根据截止日期自动规划今日任务，提前完成额外 +8 积分</div>
+      <div style="margin-top:8px;font-size:.7rem;color:#64b5f6">💡 系统根据截止日期自动规划今日任务 · 提前完成 +8 积分 · 昨日未完成 -3 积分/项</div>
     </div>
     <div class="card"><div class="card-title"><span class="dot"></span>本周概览</div><div class="wgrid" id="wGrid"></div></div>
     <div class="card"><div class="card-title"><span class="dot"></span>本周进度</div><div class="sgrid" style="grid-template-columns:repeat(4,1fr)"><div class="sbox"><div class="sv" id="wsTot" style="color:var(--b7)">0</div><div class="sl">总计</div></div><div class="sbox"><div class="sv" id="wsDone" style="color:var(--success)">0</div><div class="sl">完成</div></div><div class="sbox"><div class="sv" id="wsHigh" style="color:var(--danger)">0</div><div class="sl">高优</div></div><div class="sbox"><div class="sv" id="wsPts" style="color:var(--gold)">0</div><div class="sl">积分</div></div></div></div>
@@ -551,7 +658,7 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
       </div>
     </div>
     <div class="card"><div class="card-title"><span class="dot"></span>学期进度</div><div class="sembar-wrap" id="semBarW"><div class="sembar"><div class="semfill" id="semFill"></div></div><div id="msDots"></div><div class="semwlabels" id="semWLbls"></div></div></div>
-    <div class="card"><div class="card-title"><span class="dot"></span>各科目进度</div><div class="cgrid" id="cGrid"><div class="empty"><div class="ei">📚</div>添加科目，开始追踪学习进度</div></div></div>
+    <div class="card"><div class="card-title"><span class="dot"></span>各科目进度</div><div class="cgrid" id="cGrid"><div class="empty"><div class="ei">📚</div>添加科目，开始追踪每门课的学习深度</div></div></div>
     <div class="card" id="examListCard" style="display:none"><div class="card-title"><span class="dot"></span>考试日程</div><div id="examList"></div></div>
   </div>
 
@@ -559,7 +666,7 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
   <div class="tab-panel" id="panel-lb">
     <div class="card" style="margin-top:16px">
       <div class="card-title"><span class="dot"></span>星光排行榜 <span style="font-size:.62rem;color:#546e7a;margin-left:auto;font-family:'JetBrains Mono',monospace">共享榜单 · 实时更新</span></div>
-      <div style="font-size:.72rem;color:#64b5f6;margin-bottom:12px">📡 数据实时同步，所有使用本页面的用户共享同一排行榜</div>
+      <div style="font-size:.72rem;color:#64b5f6;margin-bottom:12px">📡 云端实时同步 · 所有账号共享同一排行榜 · 每 5 秒自动上传最新积分</div>
       <div id="lbContent"><div class="empty"><div class="ei">🏆</div>加载中...</div></div>
       <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
         <button class="btn btn-accent btn-sm" onclick="loadLB()">🔄 刷新</button>
@@ -598,15 +705,15 @@ header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px
 // ── AI CONFIG (declared first so always available) ──
 var AI_CONFIG = {
   // API key is stored in Cloudflare Worker env var (not exposed to frontend)
-  endpoint: 'https://luminos-planner.chocococ010101.workers.dev',
+  endpoint: 'https://YOUR_PROJECT.supabase.co/functions/v1/ai-proxy',  // ← Supabase Edge Function
   model: 'deepseek-chat',
   dailyLimit: 50,
 };
 var aiOpen = false;
 
 // ── SUPABASE CONFIG ──
-var SUPA_URL  = 'https://tmupwrfhkhdfdaxhdeaj.supabase.co';   // ← 替换
-var SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtdXB3cmZoa2hkZmRheGhkZWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjEwMDQsImV4cCI6MjA5NTUzNzAwNH0.eecOjWvepyd3dhDyce-Thac3BRVx-DQhlm0w1tuzxBI';                       // ← 替换
+var SUPA_URL  = 'https://YOUR_PROJECT.supabase.co';   // ← 替换
+var SUPA_ANON = 'YOUR_ANON_KEY';                       // ← 替换
 var _supa = null;  // supabase client, initialized after SDK loads
 
 function getSupa() {
@@ -667,7 +774,7 @@ async function doReg(){
     password:p,
     options:{data:{username:u}}
   });
-  if(error){e.textContent=error.message.includes('already')?'用户名已被使用':error.message;return;}
+  if(error){e.textContent=error.message.includes('already'))?'用户名已被使用':error.message;return;}
   loginOK(u, data.user.id);
 }
 
@@ -688,7 +795,7 @@ function loginOK(u, userId){
   document.getElementById('uAv').textContent=u[0].toUpperCase();
   const aib=document.getElementById('aiToggleBtn');
   if(aib){aib.style.display='flex';}
-  loadData();initApp();
+  await loadData();initApp();
 }
 function doLogout(){
   if(!confirm('确认退出？'))return;
@@ -743,6 +850,18 @@ async function loadData(){
   if(payload){
     const today=new Date().toDateString();
     if(payload.lastDate!==today){
+      // Penalise unfinished tasks from yesterday (-3 pts each)
+      const unfinished=(payload.dayTasks||[]).filter(t=>!t.done&&!t.isRecurring);
+      if(unfinished.length>0){
+        payload.pts=Math.max(0,(payload.pts||0)-unfinished.length*3);
+        payload.ptsHist=payload.ptsHist||[];
+        payload.ptsHist.unshift({
+          pts:-unfinished.length*3,
+          desc:`昨日 ${unfinished.length} 项未完成 💤`,
+          t:'昨日'
+        });
+        if(payload.ptsHist.length>60)payload.ptsHist.length=60;
+      }
       payload.dayTasks=[];payload.tdPts=0;payload.streak=0;
       payload.lastDate=today;payload.alertDismissed=false;
     }
@@ -1121,7 +1240,7 @@ function addCourse(){
 }
 function renderCourses(){
   if(!S.courses)S.courses=[];const g=document.getElementById('cGrid');
-  if(!S.courses.length){g.innerHTML='<div class="empty"><div class="ei">📚</div>添加科目，开始追踪学习进度</div>';return}
+  if(!S.courses.length){g.innerHTML='<div class="empty"><div class="ei">📚</div>添加科目，开始追踪每门课的学习深度</div>';return}
   g.innerHTML=S.courses.map(c=>{
     const mastered=c.chapters.filter(ch=>ch&&ch.stars>=3).length,touched=c.chapters.filter(ch=>ch&&ch.stars>=1).length,pct=Math.round(mastered/c.total*100),pfcl=PFCL[c.ci||0];
     const chs=Array.from({length:c.total},(_,i)=>{const ch=c.chapters[i]||{stars:0,name:''};return `<div class="ch-item"><span class="ch-num">Ch.${i+1}</span><span class="ch-name">${ch.name||'第'+(i+1)+'章'}</span><div class="ch-stars">${[1,2,3,4,5].map(s=>`<span class="chstar ${ch.stars>=s?'lit':''}" onclick="setStar(${c.id},${i},${s})" title="${['了解','熟悉','掌握','精通','大师'][s-1]} (+${STAR_PTS[s]}pts)">⭐</span>`).join('')}</div></div>`;}).join('');
@@ -1159,10 +1278,10 @@ function renderSemBar(){
 }
 function renderExamList(){
   if(!S.courses)return;const exams=(S.courses||[]).filter(c=>c.examDate).sort((a,b)=>new Date(a.examDate)-new Date(b.examDate));const card=document.getElementById('examListCard');if(!exams.length){card.style.display='none';return}card.style.display='block';const now=new Date(),rd=parseInt(document.getElementById('rdDays').value)||14;
-  document.getElementById('examList').innerHTML=exams.map(c=>{const d=Math.ceil((new Date(c.examDate)-now)/86400000),mastered=(c.chapters||[]).filter(ch=>ch&&ch.stars>=3).length,urgent=!c.done&&d>=0&&d<=rd;return `<div class="exam-item ${urgent?'urgent':''} ${c.done?'done':''}"><div class="exam-icn" style="background:rgba(${urgent?'255,82,82':'66,165,245'},.09)">${c.icon}</div><div class="exam-info"><div class="exam-name">${c.name}${d>=0&&d<=rd?`<span class="rbadge">⏰ ${d}天</span>`:''}</div><div class="exam-meta">${c.examDate} · 掌握${mastered}/${c.total}章${urgent?` · 每日~${Math.ceil(30/Math.max(1,d))}min`:''}${c.done?' · ✓已完成':''}</div></div><button class="btn ${c.done?'btn-ghost':'btn-success'} btn-sm" onclick="togCrsExam(${c.id})">${c.done?'取消':'✓ 完成'}</button></div>`;}).join('');
+  document.getElementById('examList').innerHTML=exams.map(c=>{const d=Math.ceil((new Date(c.examDate)-now)/86400000),mastered=(c.chapters||[]).filter(ch=>ch&&ch.stars>=3).length,urgent=!c.done&&d>=0&&d<=rd;return `<div class="exam-item ${urgent?'urgent':''} ${c.done?'done':''}"><div class="exam-icn" style="background:rgba(${urgent?'255,82,82':'66,165,245'},.09)">${c.icon}</div><div class="exam-info"><div class="exam-name">${c.name}${d>=0&&d<=rd?`<span class="rbadge">⏰ ${d}天</span>`:''}</div><div class="exam-meta">${c.examDate} · 掌握${mastered}/${c.total}章${urgent?` · 建议开始复习`:''}${c.done?' · ✓已完成':''}</div></div><button class="btn ${c.done?'btn-ghost':'btn-success'} btn-sm" onclick="togCrsExam(${c.id})">${c.done?'取消':'✓ 完成'}</button></div>`;}).join('');
 }
 function togCrsExam(id){const c=S.courses.find(c=>c.id===id);if(!c)return;const w=c.done;c.done=!c.done;if(c.done&&!w)addPts(20,`完成科目「${c.name}」🎉`);renderExamList();updateCountdown();saveAll()}
-function checkExams(){if(S.alertDismissed)return;const now=new Date(),rd=parseInt(document.getElementById('rdDays')?.value)||14;const al=(S.courses||[]).filter(c=>{if(!c.examDate||c.done)return false;const d=Math.ceil((new Date(c.examDate)-now)/86400000);return d>=0&&d<=rd});const bn=document.getElementById('examAlertBanner');if(al.length){bn.style.display='block';document.getElementById('alertItems').innerHTML=al.map(c=>{const d=Math.ceil((new Date(c.examDate)-now)/86400000);return `📝 ${c.name} — 距考试 <strong style="color:#ff8a80">${d}</strong> 天，建议每日复习约 ${Math.ceil(60/Math.max(1,d))} 分钟`;}).join('<br>')}else bn.style.display='none'}
+function checkExams(){if(S.alertDismissed)return;const now=new Date(),rd=parseInt(document.getElementById('rdDays')?.value)||14;const al=(S.courses||[]).filter(c=>{if(!c.examDate||c.done)return false;const d=Math.ceil((new Date(c.examDate)-now)/86400000);return d>=0&&d<=rd});const bn=document.getElementById('examAlertBanner');if(al.length){bn.style.display='block';document.getElementById('alertItems').innerHTML=al.map(c=>{const d=Math.ceil((new Date(c.examDate)-now)/86400000);return `📝 ${c.name} — 距考试 <strong style="color:#ff8a80">${d}</strong> 天，建议尽快开始复习`;}).join('<br>')}else bn.style.display='none'}
 function dismissAlert(){S.alertDismissed=true;document.getElementById('examAlertBanner').style.display='none';setTimeout(()=>{S.alertDismissed=false;checkExams()},3600000)}
 
 /* ── LEADERBOARD (Supabase) ── */
@@ -1266,13 +1385,36 @@ function showR(v,d){const p=document.getElementById('rp');document.getElementByI
 function showN(m){const n=document.getElementById('notif');n.textContent=m;n.classList.add('show');clearTimeout(nt);nt=setTimeout(()=>n.classList.remove('show'),2100)}
 
 /* ── INIT ── */
+var _realtimeChannel=null;
 function initApp(){
-  if(S.semStart)document.getElementById('semStart').value=S.semStart;if(S.semTotal)document.getElementById('semTotal').value=S.semTotal;
+  if(S.semStart)document.getElementById('semStart').value=S.semStart;
+  if(S.semTotal)document.getElementById('semTotal').value=S.semTotal;
   loadScheduleUI();
   calcCurWeek();renderDTasks();renderSchedPrev();renderTl();renderWGrid();renderWeekDueToday();
   renderSemBar();renderCourses();updPtsUI();updateShop();checkExams();updateCountdown();
-  renderRecurringList();autoUploadScore();
-  updateQuotaUI();
+  renderRecurringList();autoUploadScore();updateQuotaUI();
+  setupRealtime();
+}
+
+function setupRealtime(){
+  const sb=getSupa();if(!sb||!CU_ID)return;
+  if(_realtimeChannel){try{sb.removeChannel(_realtimeChannel)}catch{}; _realtimeChannel=null;}
+  _realtimeChannel=sb.channel('ud_'+CU_ID)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'user_data',filter:'user_id=eq.'+CU_ID},
+    payload=>{
+      if(!document.hidden||!payload.new||!payload.new.payload)return;
+      const remote=payload.new.payload;
+      const today=new Date().toDateString();
+      const runningIds=S.dayTasks.filter(t=>t.running).map(t=>t.id);
+      if(remote.lastDate===today){
+        S={...S,...remote};
+        S.dayTasks=S.dayTasks.map(t=>runningIds.includes(t.id)?{...t,running:true}:t);
+      } else {
+        S={...S,...remote,dayTasks:[],tdPts:0,streak:0,lastDate:today};
+      }
+      renderDTasks();renderSchedPrev();renderTl();updPtsUI();
+    })
+    .subscribe();
 }
 
 /* ── DAILY SCHEDULE CONFIG ── */
