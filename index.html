@@ -775,7 +775,7 @@ async function doReg(){
     options:{data:{username:u}}
   });
   if(error){e.textContent=error.message.includes('already')?'用户名已被使用':error.message;return;}
-  loginOK(u, data.user.id);
+  await loginOK(u, data.user.id);
 }
 
 // Local fallback (no Supabase configured)
@@ -786,7 +786,7 @@ function gD(u){const r=localStorage.getItem('lp_d_'+u);return r?JSON.parse(r):nu
 function sD(u,d){localStorage.setItem('lp_d_'+u,JSON.stringify(d))}
 function localLogin(u,p){const us=gU();if(!us[u]){document.getElementById('lErr').textContent='用户不存在';return;}if(us[u]!==hsh(p)){document.getElementById('lErr').textContent='密码错误';return;}loginOK(u,null);}
 function localReg(u,p){const us=gU();if(us[u]){document.getElementById('rErr').textContent='用户名已被使用';return;}us[u]=hsh(p);sU(us);loginOK(u,null);}
-function loginOK(u, userId){
+async function loginOK(u, userId){
   CU=u; CU_ID=userId||null;
   localStorage.setItem('lp_s', JSON.stringify({u, id:userId||null}));
   document.getElementById('loginScreen').style.display='none';
@@ -2014,7 +2014,7 @@ function parseAndExecuteActions(reply) {
     if(session){
       const meta=session.user.user_metadata||{};
       const username=meta.username||session.user.email.split('@')[0];
-      loginOK(username, session.user.id);
+      await loginOK(username, session.user.id);
       return;
     }
   }
@@ -2023,12 +2023,12 @@ function parseAndExecuteActions(reply) {
   if(!raw)return;
   try{
     const obj=JSON.parse(raw);
-    if(obj&&obj.u){loginOK(obj.u, obj.id||null);return;}
+    if(obj&&obj.u){await loginOK(obj.u, obj.id||null);return;}
   }catch{}
   // Legacy: plain string
   if(typeof raw==='string' && raw.length>0){
     const us=gU();
-    if(us[raw]) loginOK(raw,null);
+    if(us[raw]) await loginOK(raw,null);
   }
 })();
 
