@@ -774,7 +774,7 @@ async function doReg(){
     password:p,
     options:{data:{username:u}}
   });
-  if(error){e.textContent=error.message.includes('already'))?'用户名已被使用':error.message;return;}
+  if(error){e.textContent=error.message.includes('already')?'用户名已被使用':error.message;return;}
   loginOK(u, data.user.id);
 }
 
